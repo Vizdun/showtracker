@@ -6,6 +6,7 @@ use serde_json::json;
 use std::fs;
 
 const QUERY_URL: &str = "https://query.wikidata.org/sparql?query=SELECT%0A%20%20%3Fitem%20%3FitemLabel%0AWHERE%20%0A%7B%0A%20%20%3Fitem%20wdt%3AP1113%20%3Fvalue.%0A%20%20SERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%22en%22.%20%7D%0A%7D";
+const USER_AGENT: &str = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36";
 
 async fn get_episode_count(id: u32) -> u32 {
     let client = reqwest::Client::new();
@@ -14,7 +15,7 @@ async fn get_episode_count(id: u32) -> u32 {
         "https://query.wikidata.org/sparql?query=SELECT%20%3FepisodeCount%0AWHERE%0A%7B%0A%20%20wd%3AQ{}%20wdt%3AP1113%20%3FepisodeCount.%0A%7D",
         id
     ))
-    .header("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36")
+    .header("User-Agent", USER_AGENT)
     .send()
     .await
     .unwrap()
@@ -33,7 +34,7 @@ fn update_show_list() {
     let client = reqwest::blocking::Client::new();
 
     let shows = client.get(QUERY_URL)
-    .header("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36")
+    .header("User-Agent", USER_AGENT)
     .send()
     .unwrap()
     .text()
@@ -137,7 +138,7 @@ async fn check_for_new_episodes() {
         .collect::<Vec<String>>()
         .join("%20wd%3A")
     ))
-    .header("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36")
+    .header("User-Agent", USER_AGENT)
     .send()
     .await
     .unwrap()
