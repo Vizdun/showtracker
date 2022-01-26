@@ -124,23 +124,42 @@ fn save_tracked_shows(track_list: Vec<TrackedShow>) {
     .expect("Unable to write file");
 }
 
-async fn check_for_new_episode(i: usize, track: TrackedShow) -> (usize, u32) {
-    let new_episode_count = get_episode_count(track.id).await;
-    if track.episode_count < new_episode_count {
-        println!("New episode of {}", track.name);
-    }
-
-    return (i, new_episode_count);
-}
-
 async fn check_for_new_episodes() {
+    let client = reqwest::Client::new();
+
     let mut track_list = load_tracked_shows();
-    let futs = (&track_list)
-        .to_vec()
+
+    let checked_shows = client.get(format!(
+        "https://query.wikidata.org/sparql?query=SELECT%20%3FepisodeCount%0AWHERE%0A%7B%0A%20%20VALUES%20%3Fshow%20%7Bwd%3A{}%0A%20%20%3Fshow%20wdt%3AP1113%20%3FepisodeCount.%0A%7D",
+        (&track_list)
         .into_iter()
-        .enumerate()
-        .map(|track| return check_for_new_episode(track.0, track.1));
-    for track_tuple in futures::future::join_all(futs).await {
+        .map(|track| track.id.to_string())
+        .collect::<Vec<String>>()
+        .join("%20wd%3A")
+    ))
+    .header("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36")
+    .send()
+    .await
+    .unwrap()
+    .text()
+    .await
+    .unwrap()
+    .split("<literal datatype='http://www.w3.org/2001/XMLSchema#decimal'>")
+    .collect::<Vec<&str>>()[1..]
+    .into_iter().enumerate()
+    .map(|(id, result)| {
+            return (id, result
+                .splitn(2, "</literal>")
+                .collect::<Vec<&str>>()[0]
+                .parse::<u32>()
+                .unwrap())
+       })
+    .collect::<Vec<(usize, u32)>>();
+
+    for track_tuple in checked_shows {
+        if track_list[track_tuple.0].episode_count < track_tuple.1 {
+            println!("New episode of {}", track_list[track_tuple.0].name);
+        }
         track_list[track_tuple.0].episode_count = track_tuple.1;
     }
 
