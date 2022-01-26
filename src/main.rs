@@ -1,11 +1,10 @@
 extern crate clap;
 use clap::{App, AppSettings, Arg};
 
+mod commands;
+mod common;
 mod storage;
 mod structs;
-
-mod commands;
-mod constants;
 
 use commands::check::*;
 use commands::list::*;
@@ -46,7 +45,6 @@ fn main() {
         )
         .subcommand(App::new("list").about("Lists tracked shows"))
         .get_matches();
-
     match matches.subcommand().0 {
         "update" => update_show_list(),
         "search" => search_shows(
@@ -56,15 +54,13 @@ fn main() {
                 .value_of("TERM")
                 .unwrap(),
         ),
-        "track" => {
-            track_show(
-                matches
-                    .subcommand_matches("track")
-                    .unwrap()
-                    .value_of("SHOW")
-                    .unwrap(),
-            )
-        }
+        "track" => track_show(
+            matches
+                .subcommand_matches("track")
+                .unwrap()
+                .value_of("SHOW")
+                .unwrap(),
+        ),
         "untrack" => untrack_show(
             matches
                 .subcommand_matches("untrack")
