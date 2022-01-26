@@ -14,8 +14,7 @@ use commands::track::*;
 use commands::untrack::*;
 use commands::update::*;
 
-#[tokio::main]
-async fn main() {
+fn main() {
     let matches = App::new("Show Tracker")
         .version("1.0.0")
         .setting(AppSettings::ArgRequiredElseHelp)
@@ -49,7 +48,7 @@ async fn main() {
         .get_matches();
 
     match matches.subcommand().0 {
-        "update" => update_show_list().await,
+        "update" => update_show_list(),
         "search" => search_shows(
             matches
                 .subcommand_matches("search")
@@ -65,7 +64,6 @@ async fn main() {
                     .value_of("SHOW")
                     .unwrap(),
             )
-            .await
         }
         "untrack" => untrack_show(
             matches
@@ -75,7 +73,7 @@ async fn main() {
                 .unwrap(),
         ),
         "list" => list_tracked(),
-        "check" => check_for_new_episodes().await,
+        "check" => check_for_new_episodes(),
         _ => {}
     }
 }

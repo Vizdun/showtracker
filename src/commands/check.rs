@@ -1,12 +1,10 @@
 use crate::constants::*;
 use crate::storage::*;
 
-pub async fn check_for_new_episodes() {
-    let client = reqwest::Client::new();
-
+pub fn check_for_new_episodes() {
     let mut track_list = load_tracked_shows();
 
-    let checked_shows = client.get(format!(
+    let checked_shows = reqwest::blocking::Client::new().get(format!(
       "https://query.wikidata.org/sparql?query=SELECT%20%3FepisodeCount%0AWHERE%0A%7B%0A%20%20VALUES%20%3Fshow%20%7Bwd%3A{}%0A%20%20%3Fshow%20wdt%3AP1113%20%3FepisodeCount.%0A%7D",
       (&track_list)
       .into_iter()
@@ -16,10 +14,8 @@ pub async fn check_for_new_episodes() {
   ))
   .header("User-Agent", USER_AGENT)
   .send()
-  .await
   .unwrap()
   .text()
-  .await
   .unwrap()
   .split("<literal datatype='http://www.w3.org/2001/XMLSchema#decimal'>")
   .collect::<Vec<&str>>()[1..]

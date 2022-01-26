@@ -2,17 +2,13 @@ use crate::constants::*;
 use crate::storage::*;
 use crate::structs::*;
 
-pub async fn update_show_list() {
-    let client = reqwest::Client::new();
-
-    let shows = client
+pub fn update_show_list() {
+    let shows = reqwest::blocking::Client::new()
         .get(QUERY_URL)
         .header("User-Agent", USER_AGENT)
         .send()
-        .await
         .unwrap()
         .text()
-        .await
         .unwrap()
         .split("<result>")
         .collect::<Vec<&str>>()[1..]
