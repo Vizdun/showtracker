@@ -1,128 +1,52 @@
 extern crate clap;
 use clap::{App, AppSettings, Arg, Error, ErrorKind};
-use home::home_dir;
-use serde::{Deserialize, Serialize};
-use serde_json::json;
-use std::fs;
 
 const QUERY_URL: &str = "https://query.wikidata.org/sparql?query=SELECT%0A%20%20%3Fitem%20%3FitemLabel%0AWHERE%20%0A%7B%0A%20%20%3Fitem%20wdt%3AP1113%20%3Fvalue.%0A%20%20SERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%22en%22.%20%7D%0A%7D";
 const USER_AGENT: &str = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36";
 
-async fn get_episode_count(id: u32) -> u32 {
+mod storage;
+mod structs;
+use storage::{load_show_list, load_tracked_shows, save_show_list, save_tracked_shows};
+use structs::{Show, TrackedShow};
+
+async fn update_show_list() {
     let client = reqwest::Client::new();
 
-    return client.get(format!(
-        "https://query.wikidata.org/sparql?query=SELECT%20%3FepisodeCount%0AWHERE%0A%7B%0A%20%20wd%3AQ{}%20wdt%3AP1113%20%3FepisodeCount.%0A%7D",
-        id
-    ))
-    .header("User-Agent", USER_AGENT)
-    .send()
-    .await
-    .unwrap()
-    .text()
-    .await
-    .unwrap()
-    .splitn(2, "<literal datatype='http://www.w3.org/2001/XMLSchema#decimal'>")
-    .collect::<Vec<&str>>()[1]
-    .splitn(2, "</literal>")
-    .collect::<Vec<&str>>()[0]
-    .parse::<u32>()
-    .unwrap();
-}
-
-fn update_show_list() {
-    let client = reqwest::blocking::Client::new();
-
-    let shows = client.get(QUERY_URL)
-    .header("User-Agent", USER_AGENT)
-    .send()
-    .unwrap()
-    .text()
-    .unwrap()
-    .split("<result>")
-    .collect::<Vec<&str>>()[1..]
-    .into_iter()
-    .map(|result| {
+    let shows = client
+        .get(QUERY_URL)
+        .header("User-Agent", USER_AGENT)
+        .send()
+        .await
+        .unwrap()
+        .text()
+        .await
+        .unwrap()
+        .split("<result>")
+        .collect::<Vec<&str>>()[1..]
+        .into_iter()
+        .map(|result| {
             let name_arr = result
-            .splitn(2, "<literal xml:lang='en'>")
-            .collect::<Vec<&str>>();
+                .splitn(2, "<literal xml:lang='en'>")
+                .collect::<Vec<&str>>();
             let id = result
-            .splitn(2, "http://www.wikidata.org/entity/Q")
-            .collect::<Vec<&str>>()[1]
-            .splitn(2, "</uri>")
-            .collect::<Vec<&str>>()[0]
-            .parse::<u32>()
-            .unwrap();
+                .splitn(2, "http://www.wikidata.org/entity/Q")
+                .collect::<Vec<&str>>()[1]
+                .splitn(2, "</uri>")
+                .collect::<Vec<&str>>()[0]
+                .parse::<u32>()
+                .unwrap();
             return Show {
                 id: id,
                 name: if name_arr.len() > 1 {
-                    name_arr[1].splitn(2, "</literal>")
-                    .collect::<Vec<&str>>()[0]
-                    .to_string()
+                    name_arr[1].splitn(2, "</literal>").collect::<Vec<&str>>()[0].to_string()
                 } else {
                     id.to_string()
-                }
-            }
-       }
-    )
-    .collect::<Vec<Show>>();
+                },
+            };
+        })
+        .collect::<Vec<Show>>();
 
-    let json = (json!(shows)).to_string();
-
-    fs::create_dir_all(format!(
-        "{}/.config/showtracker/",
-        home_dir().unwrap().display()
-    ))
-    .expect("Unable to create .config directory");
-    fs::write(
-        format!(
-            "{}/.config/showtracker/shows.json",
-            home_dir().unwrap().display()
-        ),
-        json,
-    )
-    .expect("Unable to write file");
-}
-
-fn load_show_list() -> Vec<Show> {
-    return serde_json::from_str(
-        &fs::read_to_string(format!(
-            "{}/.config/showtracker/shows.json",
-            home_dir().unwrap().display()
-        ))
-        .unwrap_or("[]".to_owned())
-        .to_string(),
-    )
-    .unwrap();
-}
-
-fn load_tracked_shows() -> Vec<TrackedShow> {
-    return serde_json::from_str(
-        &fs::read_to_string(format!(
-            "{}/.config/showtracker/tracked_shows.json",
-            home_dir().unwrap().display()
-        ))
-        .unwrap_or("[]".to_owned())
-        .to_string(),
-    )
-    .unwrap();
-}
-
-fn save_tracked_shows(track_list: Vec<TrackedShow>) {
-    fs::create_dir_all(format!(
-        "{}/.config/showtracker/",
-        home_dir().unwrap().display()
-    ))
-    .expect("Unable to create .config directory");
-    let json = (json!(track_list)).to_string();
-    fs::write(
-        format!(
-            "{}/.config/showtracker/tracked_shows.json",
-            home_dir().unwrap().display()
-        ),
-        json,
-    )
-    .expect("Unable to write file");
+    save_show_list(shows);
 }
 
 async fn check_for_new_episodes() {
@@ -152,10 +76,10 @@ async fn check_for_new_episodes() {
             return (id, result
                 .splitn(2, "</literal>")
                 .collect::<Vec<&str>>()[0]
-                .parse::<u32>()
+                .parse::<u16>()
                 .unwrap())
        })
-    .collect::<Vec<(usize, u32)>>();
+    .collect::<Vec<(usize, u16)>>();
 
     for track_tuple in checked_shows {
         if track_list[track_tuple.0].episode_count < track_tuple.1 {
@@ -202,7 +126,23 @@ async fn track_show(show: &str) {
 
     track_list.push(TrackedShow {
         id: result.id,
-        episode_count: get_episode_count(result.id).await,
+        episode_count: reqwest::Client::new().get(format!(
+            "https://query.wikidata.org/sparql?query=SELECT%20%3FepisodeCount%0AWHERE%0A%7B%0A%20%20wd%3AQ{}%20wdt%3AP1113%20%3FepisodeCount.%0A%7D",
+            result.id
+        ))
+        .header("User-Agent", USER_AGENT)
+        .send()
+        .await
+        .unwrap()
+        .text()
+        .await
+        .unwrap()
+        .splitn(2, "<literal datatype='http://www.w3.org/2001/XMLSchema#decimal'>")
+        .collect::<Vec<&str>>()[1]
+        .splitn(2, "</literal>")
+        .collect::<Vec<&str>>()[0]
+        .parse::<u16>()
+        .unwrap(),
         name: (&result.name).to_string(),
     });
 
@@ -232,18 +172,6 @@ fn list_tracked() {
     for track in track_list {
         println!("{:07x} {}", track.id, track.name);
     }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct Show {
-    id: u32,
-    name: String,
-}
-#[derive(Debug, Serialize, Deserialize, Clone)]
-struct TrackedShow {
-    id: u32,
-    episode_count: u32,
-    name: String,
 }
 
 #[tokio::main]
@@ -281,7 +209,7 @@ async fn main() {
         .get_matches();
 
     match matches.subcommand().0 {
-        "update" => update_show_list(),
+        "update" => update_show_list().await,
         "search" => search_shows(
             matches
                 .subcommand_matches("search")
