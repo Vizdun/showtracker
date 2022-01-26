@@ -1,178 +1,18 @@
 extern crate clap;
-use clap::{App, AppSettings, Arg, Error, ErrorKind};
-
-const QUERY_URL: &str = "https://query.wikidata.org/sparql?query=SELECT%0A%20%20%3Fitem%20%3FitemLabel%0AWHERE%20%0A%7B%0A%20%20%3Fitem%20wdt%3AP1113%20%3Fvalue.%0A%20%20SERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%22en%22.%20%7D%0A%7D";
-const USER_AGENT: &str = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36";
+use clap::{App, AppSettings, Arg};
 
 mod storage;
 mod structs;
-use storage::{load_show_list, load_tracked_shows, save_show_list, save_tracked_shows};
-use structs::{Show, TrackedShow};
 
-async fn update_show_list() {
-    let client = reqwest::Client::new();
+mod commands;
+mod constants;
 
-    let shows = client
-        .get(QUERY_URL)
-        .header("User-Agent", USER_AGENT)
-        .send()
-        .await
-        .unwrap()
-        .text()
-        .await
-        .unwrap()
-        .split("<result>")
-        .collect::<Vec<&str>>()[1..]
-        .into_iter()
-        .map(|result| {
-            let name_arr = result
-                .splitn(2, "<literal xml:lang='en'>")
-                .collect::<Vec<&str>>();
-            let id = result
-                .splitn(2, "http://www.wikidata.org/entity/Q")
-                .collect::<Vec<&str>>()[1]
-                .splitn(2, "</uri>")
-                .collect::<Vec<&str>>()[0]
-                .parse::<u32>()
-                .unwrap();
-            return Show {
-                id: id,
-                name: if name_arr.len() > 1 {
-                    name_arr[1].splitn(2, "</literal>").collect::<Vec<&str>>()[0].to_string()
-                } else {
-                    id.to_string()
-                },
-            };
-        })
-        .collect::<Vec<Show>>();
-
-    save_show_list(shows);
-}
-
-async fn check_for_new_episodes() {
-    let client = reqwest::Client::new();
-
-    let mut track_list = load_tracked_shows();
-
-    let checked_shows = client.get(format!(
-        "https://query.wikidata.org/sparql?query=SELECT%20%3FepisodeCount%0AWHERE%0A%7B%0A%20%20VALUES%20%3Fshow%20%7Bwd%3A{}%0A%20%20%3Fshow%20wdt%3AP1113%20%3FepisodeCount.%0A%7D",
-        (&track_list)
-        .into_iter()
-        .map(|track| track.id.to_string())
-        .collect::<Vec<String>>()
-        .join("%20wd%3A")
-    ))
-    .header("User-Agent", USER_AGENT)
-    .send()
-    .await
-    .unwrap()
-    .text()
-    .await
-    .unwrap()
-    .split("<literal datatype='http://www.w3.org/2001/XMLSchema#decimal'>")
-    .collect::<Vec<&str>>()[1..]
-    .into_iter().enumerate()
-    .map(|(id, result)| {
-            return (id, result
-                .splitn(2, "</literal>")
-                .collect::<Vec<&str>>()[0]
-                .parse::<u16>()
-                .unwrap())
-       })
-    .collect::<Vec<(usize, u16)>>();
-
-    for track_tuple in checked_shows {
-        if track_list[track_tuple.0].episode_count < track_tuple.1 {
-            println!("New episode of {}", track_list[track_tuple.0].name);
-        }
-        track_list[track_tuple.0].episode_count = track_tuple.1;
-    }
-
-    save_tracked_shows(track_list);
-}
-
-fn search_shows(show: &str) {
-    let search_results = load_show_list()
-        .into_iter()
-        .filter(|vec_show| vec_show.name.to_lowercase().contains(&show.to_lowercase()))
-        .collect::<Vec<Show>>();
-    for result in search_results {
-        println!("{:07x} {}", result.id, result.name);
-    }
-}
-
-fn parse_show_id(show: &str) -> Show {
-    let id = match u32::from_str_radix(show, 16) {
-        Ok(num) => num,
-        Err(_) => Error::with_description("Invalid ID", ErrorKind::InvalidValue).exit(),
-    };
-
-    let shows = load_show_list();
-    return match shows.into_iter().find(|item| item.id == id) {
-        Some(result) => result,
-        None => Error::with_description("Show not found", ErrorKind::InvalidValue).exit(),
-    };
-}
-
-async fn track_show(show: &str) {
-    let result = parse_show_id(show);
-
-    let mut track_list = load_tracked_shows();
-
-    match (&track_list).into_iter().find(|item| item.id == result.id) {
-        Some(_) => Error::with_description("Show already tracked", ErrorKind::InvalidValue).exit(),
-        None => {}
-    };
-
-    track_list.push(TrackedShow {
-        id: result.id,
-        episode_count: reqwest::Client::new().get(format!(
-            "https://query.wikidata.org/sparql?query=SELECT%20%3FepisodeCount%0AWHERE%0A%7B%0A%20%20wd%3AQ{}%20wdt%3AP1113%20%3FepisodeCount.%0A%7D",
-            result.id
-        ))
-        .header("User-Agent", USER_AGENT)
-        .send()
-        .await
-        .unwrap()
-        .text()
-        .await
-        .unwrap()
-        .splitn(2, "<literal datatype='http://www.w3.org/2001/XMLSchema#decimal'>")
-        .collect::<Vec<&str>>()[1]
-        .splitn(2, "</literal>")
-        .collect::<Vec<&str>>()[0]
-        .parse::<u16>()
-        .unwrap(),
-        name: (&result.name).to_string(),
-    });
-
-    save_tracked_shows(track_list);
-    println!("Added {} to tracked shows", result.name);
-}
-
-fn untrack_show(show: &str) {
-    let result = parse_show_id(show);
-    let mut track_list = load_tracked_shows();
-
-    let index = match track_list
-        .to_vec()
-        .into_iter()
-        .position(|item| item.id == result.id)
-    {
-        Some(index) => index,
-        None => Error::with_description("Show not tracked", ErrorKind::InvalidValue).exit(),
-    };
-    println!("Stopped tracking {}", track_list[index].name);
-    track_list.remove(index);
-    save_tracked_shows(track_list);
-}
-
-fn list_tracked() {
-    let track_list = load_tracked_shows();
-    for track in track_list {
-        println!("{:07x} {}", track.id, track.name);
-    }
-}
+use commands::check::*;
+use commands::list::*;
+use commands::search::*;
+use commands::track::*;
+use commands::untrack::*;
+use commands::update::*;
 
 #[tokio::main]
 async fn main() {
