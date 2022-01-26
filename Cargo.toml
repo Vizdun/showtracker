@@ -11,3 +11,5 @@ serde = { version = "1.0.130", features = ["derive"] }
 serde_json = "1.0"
 clap = "2.33.3"
 home = "0.5.3"
+futures = "0.3.19"
+tokio = { version = "1", features = ["full"] }

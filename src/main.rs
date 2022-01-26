@@ -7,14 +7,17 @@ use std::fs;
 
 const QUERY_URL: &str = "https://query.wikidata.org/sparql?query=SELECT%0A%20%20%3Fitem%20%3FitemLabel%0AWHERE%20%0A%7B%0A%20%20%3Fitem%20wdt%3AP1113%20%3Fvalue.%0A%20%20SERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%22en%22.%20%7D%0A%7D";
 
-fn get_episode_count(id: u32) -> u32 {
-    let body = reqwest::blocking::get(format!(
-        "{}{}{}",
-        "https://www.wikidata.org/wiki/Special:EntityData/Q", id, ".json"
+async fn get_episode_count(id: u32) -> u32 {
+    let body = reqwest::get(format!(
+        "https://www.wikidata.org/wiki/Special:EntityData/Q{}.json",
+        id
     ))
+    .await
     .unwrap()
     .text()
+    .await
     .unwrap();
+
     return body.splitn(2, "P1113").collect::<Vec<&str>>()[1]
         .splitn(2, ",\"unit")
         .collect::<Vec<&str>>()[0]
@@ -121,14 +124,25 @@ fn save_tracked_shows(track_list: Vec<TrackedShow>) {
     .expect("Unable to write file");
 }
 
-fn check_for_new_episodes() {
+async fn check_for_new_episode(i: usize, track: TrackedShow) -> (usize, u32) {
+    let new_episode_count = get_episode_count(track.id).await;
+    if track.episode_count < new_episode_count {
+        println!("New episode of {}", track.name);
+    }
+    return (i, new_episode_count);
+}
+
+async fn check_for_new_episodes() {
     let mut track_list = load_tracked_shows();
-    for (i, track) in (&track_list).to_vec().into_iter().enumerate() {
-        let new_episode_count = get_episode_count(track.id);
-        if track.episode_count < new_episode_count {
-            println!("New episode of {}", track.name);
-        }
-        track_list[i].episode_count = new_episode_count;
+
+    let futs = (&track_list)
+        .to_vec()
+        .into_iter()
+        .enumerate()
+        .map(|track| return check_for_new_episode(track.0, track.1));
+    
+    for track_tuple in futures::future::join_all(futs).await {
+        track_list[track_tuple.0].episode_count = track_tuple.1;
     }
 
     save_tracked_shows(track_list);
@@ -157,7 +171,7 @@ fn parse_show_id(show: &str) -> Show {
     };
 }
 
-fn track_show(show: &str) {
+async fn track_show(show: &str) {
     let result = parse_show_id(show);
 
     let mut track_list = load_tracked_shows();
@@ -169,12 +183,11 @@ fn track_show(show: &str) {
 
     track_list.push(TrackedShow {
         id: result.id,
-        episode_count: get_episode_count(result.id),
+        episode_count: get_episode_count(result.id).await,
         name: (&result.name).to_string(),
     });
 
     save_tracked_shows(track_list);
-
     println!("Added {} to tracked shows", result.name);
 }
 
@@ -214,7 +227,8 @@ struct TrackedShow {
     name: String,
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let matches = App::new("Show Tracker")
         .version("1.0.0")
         .setting(AppSettings::ArgRequiredElseHelp)
@@ -262,7 +276,7 @@ fn main() {
                 .unwrap()
                 .value_of("SHOW")
                 .unwrap(),
-        ),
+        ).await,
         "untrack" => untrack_show(
             matches
                 .subcommand_matches("untrack")
@@ -271,7 +285,7 @@ fn main() {
                 .unwrap(),
         ),
         "list" => list_tracked(),
-        "check" => check_for_new_episodes(),
+        "check" => check_for_new_episodes().await,
         _ => {}
     }
 }
