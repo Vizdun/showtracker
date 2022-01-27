@@ -1,15 +1,34 @@
-use crate::common::get_request;
-use crate::common::parse_show_id;
-use crate::storage::*;
-use crate::structs::*;
-use clap::{Error, ErrorKind};
+use clap::{
+    Error,
+    ErrorKind
+};
+
+use crate::{
+    common::{
+        get_request,
+        parse_show_id
+    },
+    storage::*,
+    structs::*
+};
 
 pub fn track_show(show: &str) {
+
     let result = parse_show_id(show);
+
     let mut track_list = load_tracked_shows();
-    
-    match (&track_list).into_iter().find(|item| item.id == result.id) {
-        Some(_) => Error::with_description("Show already tracked", ErrorKind::InvalidValue).exit(),
+
+    match (&track_list)
+        .into_iter()
+        .find(|item| item.id == result.id)
+    {
+        Some(_) => {
+            Error::with_description(
+                "Show already tracked",
+                ErrorKind::InvalidValue
+            )
+            .exit()
+        }
         None => {}
     };
 
@@ -27,7 +46,7 @@ pub fn track_show(show: &str) {
         .unwrap(),
         name: (&result.name).to_string(),
     });
-    
+
     save_tracked_shows(track_list);
 
     println!("Added {} to tracked shows", result.name);

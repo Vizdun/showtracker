@@ -1,8 +1,12 @@
-use crate::common::get_request;
-use crate::storage::*;
+use crate::{
+    common::get_request,
+    storage::*
+};
 
 pub fn check_for_new_episodes() {
+
     let mut track_list = load_tracked_shows();
+
     let checked_shows = get_request(
         &format!(
             "https://query.wikidata.org/sparql?query=SELECT%20%3FepisodeCount%0AWHERE%0A%7B%0A%20%20VALUES%20%3Fshow%20%7Bwd%3A{}%0A%20%20%3Fshow%20wdt%3AP1113%20%3FepisodeCount.%0A%7D",
@@ -19,10 +23,20 @@ pub fn check_for_new_episodes() {
     .collect::<Vec<(usize, u16)>>();
 
     for track_tuple in checked_shows {
-        if track_list[track_tuple.0].episode_count < track_tuple.1 {
-            println!("New episode of {}", track_list[track_tuple.0].name);
+
+        if track_list[track_tuple.0].episode_count
+            < track_tuple.1
+        {
+
+            println!(
+                "New episode of {}",
+                track_list[track_tuple.0].name
+            );
         }
-        track_list[track_tuple.0].episode_count = track_tuple.1;
+
+        track_list[track_tuple.0].episode_count =
+            track_tuple.1;
     }
+
     save_tracked_shows(track_list);
 }

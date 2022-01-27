@@ -1,0 +1,42 @@
+indent_style = "Block"
+
+reorder_imports = false
+
+blank_lines_lower_bound = 1
+blank_lines_upper_bound = 1
+
+edition = "2018"
+
+fn_args_layout = "Vertical"
+imports_layout = "Vertical"
+
+newline_style = "Unix"
+normalize_comments = true
+
+reorder_impl_items = true
+
+struct_field_align_threshold = 20
+
+struct_lit_single_line = false
+
+trailing_comma = "Never"
+
+trailing_semicolon = true
+
+use_field_init_shorthand = true
+
+where_single_line = true
+
+wrap_comments = true
+
+reorder_modules = true
+
+force_multiline_blocks = true
+
+max_width = 60
+
+group_imports = "StdExternalCrate"
+
+imports_granularity = "Crate"
+
+use_small_heuristics = "Max"
