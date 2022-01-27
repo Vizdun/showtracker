@@ -8,6 +8,7 @@ pub fn search_shows(show: &str) {
     let search_results = load_show_list()
         .into_iter()
         .filter(|vec_show| {
+
             vec_show
                 .name
                 .to_lowercase()
