@@ -1,4 +1,6 @@
 extern crate clap;
+#[macro_use]
+extern crate tantivy;
 
 use clap::{App, AppSettings, Arg};
 
