@@ -29,6 +29,9 @@ impl std::fmt::Display for ShowsPrintable {
         &self,
         fmt: &mut std::fmt::Formatter,
     ) -> std::result::Result<(), std::fmt::Error> {
+        if self.shows.len() == 0 {
+            return Ok(())
+        }
         let mut temp_arr = self.shows.clone();
         temp_arr.sort_by(|a, b| {
             a.name.len().partial_cmp(&b.name.len()).unwrap()
