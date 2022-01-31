@@ -49,8 +49,10 @@ pub fn search_shows(
 
     let searcher = reader.searcher();
 
-    let query_parser =
+    let mut query_parser =
         QueryParser::for_index(&index, vec![title]);
+    
+    query_parser.set_conjunction_by_default();
 
     let query =
         query_parser.parse_query(search_query).unwrap();
