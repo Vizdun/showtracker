@@ -7,6 +7,8 @@ use tantivy::Index;
 use tantivy::ReloadPolicy;
 use tempfile::TempDir;
 
+use crate::structs::{ShowsPrintable, ShowPrintable};
+
 pub fn search_shows(
     search_query: &str,
     max_results: &str,
@@ -51,7 +53,6 @@ pub fn search_shows(
 
     let mut query_parser =
         QueryParser::for_index(&index, vec![title]);
-    
     query_parser.set_conjunction_by_default();
 
     let query =
@@ -71,13 +72,29 @@ pub fn search_shows(
     //     })
     //     .collect::<Vec<Show>>();
 
-    for (_score, doc_address) in top_docs {
-        let doc = searcher.doc(doc_address).unwrap();
-
-        println!(
-            "{:07x} {}",
-            doc.get_first(id).unwrap().u64_value().unwrap(),
-            doc.get_first(title).unwrap().text().unwrap()
-        );
-    }
+    println!(
+        "{}",
+        ShowsPrintable {
+            shows: top_docs
+                .into_iter()
+                .map(|(_, doc)| {
+                    let doc = searcher.doc(doc).unwrap();
+                    ShowPrintable {
+                        id: doc
+                            .get_first(id)
+                            .unwrap()
+                            .u64_value()
+                            .unwrap()
+                            as u32,
+                        name: doc
+                            .get_first(title)
+                            .unwrap()
+                            .text()
+                            .unwrap()
+                            .to_string(),
+                    }
+                })
+                .collect()
+        }
+    );
 }

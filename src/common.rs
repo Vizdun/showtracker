@@ -15,8 +15,10 @@ use clap::{Error, ErrorKind};
 use crate::{storage::*, structs::*};
 
 pub fn parse_show_id(show: &str) -> Show {
-    let id = match u32::from_str_radix(show, 16) {
-        Ok(num) => num,
+    let id: u32 = match bs58::decode(show).into_vec() {
+        Ok(vec) => {
+            u32::from_le_bytes(vec.try_into().unwrap())
+        }
         Err(_) => Error::with_description(
             "Invalid ID",
             ErrorKind::InvalidValue,

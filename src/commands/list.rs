@@ -1,9 +1,20 @@
 use crate::storage::load_tracked_shows;
 
+use crate::structs::{ShowsPrintable, ShowPrintable};
+
 pub fn list_tracked() {
     let track_list = load_tracked_shows();
 
-    for track in track_list {
-        println!("{:07x} {}", track.id, track.name);
-    }
+    println!(
+        "{}",
+        ShowsPrintable {
+            shows: track_list
+                .into_iter()
+                .map(|track| ShowPrintable {
+                    id: track.id,
+                    name: track.name
+                })
+                .collect()
+        }
+    );
 }
