@@ -1,19 +1,12 @@
-use clap::{
-    Error,
-    ErrorKind
-};
+use clap::{Error, ErrorKind};
 
 use crate::{
-    common::{
-        get_request,
-        parse_show_id
-    },
+    common::{get_request, parse_show_id},
     storage::*,
-    structs::*
+    structs::*,
 };
 
 pub fn track_show(show: &str) {
-
     let result = parse_show_id(show);
 
     let mut track_list = load_tracked_shows();
@@ -22,13 +15,11 @@ pub fn track_show(show: &str) {
         .into_iter()
         .find(|item| item.id == result.id)
     {
-        Some(_) => {
-            Error::with_description(
-                "Show already tracked",
-                ErrorKind::InvalidValue
-            )
-            .exit()
-        }
+        Some(_) => Error::with_description(
+            "Show already tracked",
+            ErrorKind::InvalidValue,
+        )
+        .exit(),
         None => {}
     };
 

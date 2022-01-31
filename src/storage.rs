@@ -1,17 +1,10 @@
-use std::{
-    convert::TryInto,
-    fs
-};
+use std::{convert::TryInto, fs};
 
 use home::home_dir;
 
-use crate::structs::{
-    Show,
-    TrackedShow
-};
+use crate::structs::{Show, TrackedShow};
 
 pub fn load_show_list() -> Vec<Show> {
-
     let mut show_list: Vec<Show> = vec![];
 
     let show_list_bin = fs::read(format!(
@@ -23,25 +16,24 @@ pub fn load_show_list() -> Vec<Show> {
     let mut index = 0;
 
     while index < show_list_bin.len() {
-
         let last_i = index
             + 12
             + usize::from_le_bytes(
                 show_list_bin[index + 4..index + 12]
                     .try_into()
-                    .unwrap()
+                    .unwrap(),
             );
 
         show_list.push(Show {
-            id:   u32::from_le_bytes(
+            id: u32::from_le_bytes(
                 show_list_bin[index + 0..index + 4]
                     .try_into()
-                    .unwrap()
+                    .unwrap(),
             ),
             name: String::from_utf8(
-                show_list_bin[index + 12..last_i].to_vec()
+                show_list_bin[index + 12..last_i].to_vec(),
             )
-            .unwrap()
+            .unwrap(),
         });
 
         index = last_i;
@@ -51,11 +43,9 @@ pub fn load_show_list() -> Vec<Show> {
 }
 
 pub fn save_show_list(shows: Vec<Show>) {
-
     let shows_bin = shows
         .into_iter()
         .map(|show| {
-
             show.id
                 .to_le_bytes()
                 .iter()
@@ -64,7 +54,7 @@ pub fn save_show_list(shows: Vec<Show>) {
                         .as_bytes()
                         .len()
                         .to_le_bytes()
-                        .iter()
+                        .iter(),
                 )
                 .chain(show.name.as_bytes().into_iter())
                 .map(|x| x.to_owned())
@@ -78,13 +68,12 @@ pub fn save_show_list(shows: Vec<Show>) {
             "{}/.config/showtracker/shows.bin",
             home_dir().unwrap().display()
         ),
-        shows_bin
+        shows_bin,
     )
     .expect("Unable to write file");
 }
 
 pub fn load_tracked_shows() -> Vec<TrackedShow> {
-
     let mut track_list: Vec<TrackedShow> = vec![];
 
     let track_list_bin = fs::read(format!(
@@ -96,30 +85,29 @@ pub fn load_tracked_shows() -> Vec<TrackedShow> {
     let mut index = 0;
 
     while index < track_list_bin.len() {
-
         let last_i = index
             + 14
             + usize::from_le_bytes(
                 track_list_bin[index + 6..index + 14]
                     .try_into()
-                    .unwrap()
+                    .unwrap(),
             );
 
         track_list.push(TrackedShow {
-            id:            u32::from_le_bytes(
+            id: u32::from_le_bytes(
                 track_list_bin[index + 0..index + 4]
                     .try_into()
-                    .unwrap()
+                    .unwrap(),
             ),
             episode_count: u16::from_le_bytes(
                 track_list_bin[index + 4..index + 6]
                     .try_into()
-                    .unwrap()
+                    .unwrap(),
             ),
-            name:          String::from_utf8(
-                track_list_bin[index + 14..last_i].to_vec()
+            name: String::from_utf8(
+                track_list_bin[index + 14..last_i].to_vec(),
             )
-            .unwrap()
+            .unwrap(),
         });
 
         index = last_i;
@@ -129,11 +117,9 @@ pub fn load_tracked_shows() -> Vec<TrackedShow> {
 }
 
 pub fn save_tracked_shows(track_list: Vec<TrackedShow>) {
-
     let track_list_bin = track_list
         .into_iter()
         .map(|tracked_show| {
-
             tracked_show
                 .id
                 .to_le_bytes()
@@ -142,7 +128,7 @@ pub fn save_tracked_shows(track_list: Vec<TrackedShow>) {
                     tracked_show
                         .episode_count
                         .to_le_bytes()
-                        .iter()
+                        .iter(),
                 )
                 .chain(
                     tracked_show
@@ -150,13 +136,13 @@ pub fn save_tracked_shows(track_list: Vec<TrackedShow>) {
                         .as_bytes()
                         .len()
                         .to_le_bytes()
-                        .iter()
+                        .iter(),
                 )
                 .chain(
                     tracked_show
                         .name
                         .as_bytes()
-                        .into_iter()
+                        .into_iter(),
                 )
                 .map(|x| x.to_owned())
                 .collect::<Vec<u8>>()
@@ -175,7 +161,7 @@ pub fn save_tracked_shows(track_list: Vec<TrackedShow>) {
             "{}/.config/showtracker/tracked_shows.bin",
             home_dir().unwrap().display()
         ),
-        track_list_bin
+        track_list_bin,
     )
     .expect("Unable to write file");
 }

@@ -1,10 +1,6 @@
-use crate::{
-    common::get_request,
-    storage::*
-};
+use crate::{common::get_request, storage::*};
 
 pub fn check_for_new_episodes() {
-
     let mut track_list = load_tracked_shows();
 
     let checked_shows = get_request(&format!(
@@ -27,11 +23,9 @@ pub fn check_for_new_episodes() {
     .collect::<Vec<(usize, u16)>>();
 
     for track_tuple in checked_shows {
-
         if track_list[track_tuple.0].episode_count
             < track_tuple.1
         {
-
             println!(
                 "New episode of {}",
                 track_list[track_tuple.0].name
