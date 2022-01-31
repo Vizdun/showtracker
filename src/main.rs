@@ -35,6 +35,14 @@ fn main() {
                         .help("Search term")
                         .required(true)
                         .index(1),
+                )
+                .arg(
+                    Arg::with_name("max")
+                        .help("Maximum number of results")
+                        .short("m")
+                        .long("max")
+                        .default_value("10")
+                        .takes_value(true),
                 ),
         )
         .subcommand(
@@ -69,6 +77,11 @@ fn main() {
                 .subcommand_matches("search")
                 .unwrap()
                 .value_of("TERM")
+                .unwrap(),
+            matches
+                .subcommand_matches("search")
+                .unwrap()
+                .value_of("max")
                 .unwrap(),
         ),
         "track" => track_show(

@@ -7,7 +7,11 @@ use tantivy::Index;
 use tantivy::ReloadPolicy;
 use tempfile::TempDir;
 
-pub fn search_shows(search_query: &str) {
+pub fn search_shows(
+    search_query: &str,
+    max_results: &str,
+) {
+    let max_results = max_results.parse::<usize>().unwrap();
     let search_results = load_show_list();
 
     let index_path = TempDir::new().unwrap();
@@ -52,7 +56,7 @@ pub fn search_shows(search_query: &str) {
         query_parser.parse_query(search_query).unwrap();
 
     let top_docs = searcher
-        .search(&query, &TopDocs::with_limit(10))
+        .search(&query, &TopDocs::with_limit(max_results))
         .unwrap();
 
     // let search_results = load_show_list()
