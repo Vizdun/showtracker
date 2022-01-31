@@ -1,9 +1,25 @@
 use crate::{common::get_request, storage::*, structs::*};
 
-pub const QUERY_URL: &str = "https://query.wikidata.org/sparql?query=SELECT%0A%20%20%3Fitem%20%3FitemLabel%0AWHERE%20%0A%7B%0A%20%20%3Fitem%20wdt%3AP1113%20%3Fvalue.%0A%20%20SERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%22en%22.%20%7D%0A%7D";
+use urlencoding::encode;
 
 pub fn update_show_list() {
-    let shows = get_request(QUERY_URL)
+    let query_url = &format!("https://query.wikidata.org/sparql?query={}",encode("SELECT
+?item ?itemLabel
+WHERE 
+{
+?item wdt:P1113 ?value.
+MINUS
+{
+  ?item wdt:P31 wd:Q3464665.
+}
+MINUS
+{
+  ?item wdt:P31 wd:Q100269041.
+}
+SERVICE wikibase:label { bd:serviceParam wikibase:language \"en\". }
+}"));
+
+    let shows = get_request(query_url)
         .split("<result>")
         .collect::<Vec<&str>>()[1..]
         .into_iter()
