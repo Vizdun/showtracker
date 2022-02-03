@@ -1,6 +1,6 @@
 use crate::{common::get_request, storage::*};
 
-pub fn check_for_new_episodes() {
+pub fn main() {
     let mut track_list = load_tracked_shows();
 
     let checked_shows = get_request(&format!(

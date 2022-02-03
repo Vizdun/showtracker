@@ -9,7 +9,7 @@ use tempfile::TempDir;
 
 use crate::structs::{ShowsPrintable, ShowPrintable};
 
-pub fn search_shows(
+pub fn main(
     search_query: &str,
     max_results: &str,
 ) {

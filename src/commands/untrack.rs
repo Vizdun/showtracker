@@ -2,7 +2,7 @@ use clap::{Error, ErrorKind};
 
 use crate::{common::parse_show_id, storage::*};
 
-pub fn untrack_show(show: &str) {
+pub fn main(show: &str) {
     let result = parse_show_id(show);
 
     let mut track_list = load_tracked_shows();

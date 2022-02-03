@@ -2,7 +2,7 @@ use crate::storage::load_tracked_shows;
 
 use crate::structs::{ShowsPrintable, ShowPrintable};
 
-pub fn list_tracked() {
+pub fn main() {
     let track_list = load_tracked_shows();
 
     println!(

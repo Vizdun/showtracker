@@ -9,11 +9,6 @@ mod common;
 mod storage;
 mod structs;
 
-use commands::{
-    check::*, list::*, search::*, track::*, untrack::*,
-    update::*,
-};
-
 fn main() {
     let matches = App::new("Show Tracker")
         .version("1.0.0")
@@ -71,8 +66,8 @@ fn main() {
         .get_matches();
 
     match matches.subcommand().0 {
-        "update" => update_show_list(),
-        "search" => search_shows(
+        "update" => commands::update::main(),
+        "search" => commands::search::main(
             matches
                 .subcommand_matches("search")
                 .unwrap()
@@ -84,22 +79,22 @@ fn main() {
                 .value_of("max")
                 .unwrap(),
         ),
-        "track" => track_show(
+        "track" => commands::track::main(
             matches
                 .subcommand_matches("track")
                 .unwrap()
                 .value_of("SHOW")
                 .unwrap(),
         ),
-        "untrack" => untrack_show(
+        "untrack" => commands::untrack::main(
             matches
                 .subcommand_matches("untrack")
                 .unwrap()
                 .value_of("SHOW")
                 .unwrap(),
         ),
-        "list" => list_tracked(),
-        "check" => check_for_new_episodes(),
+        "list" => commands::list::main(),
+        "check" => commands::check::main(),
         _ => {}
     }
 }
