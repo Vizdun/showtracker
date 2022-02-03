@@ -11,7 +11,7 @@ mod structs;
 
 fn main() {
     let matches = App::new("Show Tracker")
-        .version("1.0.0")
+        .version("Development Version")
         .setting(AppSettings::ArgRequiredElseHelp)
         .subcommand(
             App::new("check").about(
