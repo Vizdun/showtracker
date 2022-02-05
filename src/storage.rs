@@ -39,7 +39,7 @@ pub fn load_show_list() -> Vec<Show> {
         index = last_i;
     }
 
-    return show_list;
+    show_list
 }
 
 pub fn save_show_list(shows: Vec<Show>) {
@@ -56,7 +56,7 @@ pub fn save_show_list(shows: Vec<Show>) {
                         .to_le_bytes()
                         .iter(),
                 )
-                .chain(show.name.as_bytes().into_iter())
+                .chain(show.name.as_bytes().iter())
                 .map(|x| x.to_owned())
                 .collect::<Vec<u8>>()
         })
@@ -113,7 +113,7 @@ pub fn load_tracked_shows() -> Vec<TrackedShow> {
         index = last_i;
     }
 
-    return track_list;
+    track_list
 }
 
 pub fn save_tracked_shows(track_list: Vec<TrackedShow>) {
@@ -142,7 +142,7 @@ pub fn save_tracked_shows(track_list: Vec<TrackedShow>) {
                     tracked_show
                         .name
                         .as_bytes()
-                        .into_iter(),
+                        .iter(),
                 )
                 .map(|x| x.to_owned())
                 .collect::<Vec<u8>>()

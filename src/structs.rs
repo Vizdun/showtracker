@@ -29,7 +29,7 @@ impl std::fmt::Display for ShowsPrintable {
         &self,
         fmt: &mut std::fmt::Formatter,
     ) -> std::result::Result<(), std::fmt::Error> {
-        if self.shows.len() == 0 {
+        if self.shows.is_empty() {
             return Ok(());
         }
         let mut temp_arr = self.shows.clone();
@@ -38,18 +38,18 @@ impl std::fmt::Display for ShowsPrintable {
         });
         let longest_name = temp_arr.last().unwrap();
 
-        write!(
+        writeln!(
             fmt,
-            "|{: <6}|{: <longest$}|\n",
+            "|{: <6}|{: <longest$}|",
             "ID",
             "Title",
             longest = longest_name.name.len()
         )
         .unwrap();
 
-        write!(
+        writeln!(
             fmt,
-            "|{:-<6}|{:-<longest$}|\n",
+            "|{:-<6}|{:-<longest$}|",
             "-",
             "-",
             longest = longest_name.name.len()
@@ -57,7 +57,7 @@ impl std::fmt::Display for ShowsPrintable {
         .unwrap();
 
         for (indx, show) in
-            (&self.shows).into_iter().enumerate()
+            (&self.shows).iter().enumerate()
         {
             write!(
                 fmt,
@@ -69,7 +69,7 @@ impl std::fmt::Display for ShowsPrintable {
             )
             .unwrap();
             if indx != self.shows.len() - 1 {
-                write!(fmt, "\n").unwrap();
+                writeln!(fmt).unwrap();
             }
         }
         Ok(())

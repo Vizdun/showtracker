@@ -6,14 +6,14 @@ pub fn main() {
     let checked_shows = get_request(&format!(
             "https://query.wikidata.org/sparql?query=SELECT%20%3FepisodeCount%0AWHERE%0A%7B%0A%20%20VALUES%20%3Fshow%20%7Bwd%3A{}%0A%20%20%3Fshow%20wdt%3AP1113%20%3FepisodeCount.%0A%7D",
             (&track_list)
-            .into_iter()
+            .iter()
             .map(|track|track.id.to_string())
             .collect::<Vec<String>>()
             .join("%20wd%3A"))
         )
     .split("<literal datatype='http://www.w3.org/2001/XMLSchema#decimal'>")
     .collect::<Vec<&str>>()[1..]
-    .into_iter()
+    .iter()
     .enumerate()
     .map(|(id, result)| {
         return (id, result.splitn(2, "</literal>")

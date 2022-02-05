@@ -22,7 +22,7 @@ SERVICE wikibase:label { bd:serviceParam wikibase:language \"en\". }
     let shows = get_request(query_url)
         .split("<result>")
         .collect::<Vec<&str>>()[1..]
-        .into_iter()
+        .iter()
         .map(|result| {
             let name_arr = result
                 .splitn(2, "<literal xml:lang='en'>")

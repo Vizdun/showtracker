@@ -12,7 +12,7 @@ pub fn main(show: &str) {
     let mut track_list = load_tracked_shows();
 
     match (&track_list)
-        .into_iter()
+        .iter()
         .find(|item| item.id == result.id)
     {
         Some(_) => Error::with_description(

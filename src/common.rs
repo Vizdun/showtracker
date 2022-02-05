@@ -16,7 +16,7 @@ use crate::{storage::*, structs::*};
 
 pub fn parse_show_id(show: &str) -> Show {
     let id: u32 = match bs58::decode(
-        show.splitn(2, "0").last().unwrap(),
+        show.splitn(2, '0').last().unwrap(),
     )
     .into_vec()
     {
@@ -32,7 +32,7 @@ pub fn parse_show_id(show: &str) -> Show {
 
     let shows = load_show_list();
 
-    return match shows
+    match shows
         .into_iter()
         .find(|item| item.id == id)
     {
@@ -42,5 +42,5 @@ pub fn parse_show_id(show: &str) -> Show {
             ErrorKind::InvalidValue,
         )
         .exit(),
-    };
+    }
 }
