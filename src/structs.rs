@@ -30,7 +30,7 @@ impl std::fmt::Display for ShowsPrintable {
         fmt: &mut std::fmt::Formatter,
     ) -> std::result::Result<(), std::fmt::Error> {
         if self.shows.len() == 0 {
-            return Ok(())
+            return Ok(());
         }
         let mut temp_arr = self.shows.clone();
         temp_arr.sort_by(|a, b| {
