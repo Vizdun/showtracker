@@ -56,8 +56,7 @@ impl std::fmt::Display for ShowsPrintable {
         )
         .unwrap();
 
-        for (indx, show) in
-            (&self.shows).iter().enumerate()
+        for (indx, show) in (&self.shows).iter().enumerate()
         {
             write!(
                 fmt,

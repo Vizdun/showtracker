@@ -32,10 +32,7 @@ pub fn parse_show_id(show: &str) -> Show {
 
     let shows = load_show_list();
 
-    match shows
-        .into_iter()
-        .find(|item| item.id == id)
-    {
+    match shows.into_iter().find(|item| item.id == id) {
         Some(result) => result,
         None => Error::with_description(
             "Show not found",

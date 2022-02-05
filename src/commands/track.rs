@@ -11,16 +11,13 @@ pub fn main(show: &str) {
 
     let mut track_list = load_tracked_shows();
 
-    match (&track_list)
-        .iter()
-        .find(|item| item.id == result.id)
+    if (&track_list).iter().any(|item| item.id == result.id)
     {
-        Some(_) => Error::with_description(
+        Error::with_description(
             "Show already tracked",
             ErrorKind::InvalidValue,
         )
-        .exit(),
-        None => {}
+        .exit()
     };
 
     track_list.push(TrackedShow {

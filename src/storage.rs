@@ -26,7 +26,7 @@ pub fn load_show_list() -> Vec<Show> {
 
         show_list.push(Show {
             id: u32::from_le_bytes(
-                show_list_bin[index + 0..index + 4]
+                show_list_bin[index..index + 4]
                     .try_into()
                     .unwrap(),
             ),
@@ -95,7 +95,7 @@ pub fn load_tracked_shows() -> Vec<TrackedShow> {
 
         track_list.push(TrackedShow {
             id: u32::from_le_bytes(
-                track_list_bin[index + 0..index + 4]
+                track_list_bin[index..index + 4]
                     .try_into()
                     .unwrap(),
             ),
@@ -138,12 +138,7 @@ pub fn save_tracked_shows(track_list: Vec<TrackedShow>) {
                         .to_le_bytes()
                         .iter(),
                 )
-                .chain(
-                    tracked_show
-                        .name
-                        .as_bytes()
-                        .iter(),
-                )
+                .chain(tracked_show.name.as_bytes().iter())
                 .map(|x| x.to_owned())
                 .collect::<Vec<u8>>()
         })
