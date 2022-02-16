@@ -3,6 +3,7 @@
 pub struct Show {
     pub id: u32,
     pub name: String,
+    pub year: u8,
 }
 
 #[derive(
@@ -20,10 +21,12 @@ pub struct TrackedShow {
 pub struct ShowPrintable {
     pub id: u32,
     pub name: String,
+    pub year: u8,
 }
 
 pub struct ShowsPrintable {
     pub shows: Vec<ShowPrintable>,
+    pub years: bool,
 }
 
 impl std::fmt::Display for ShowsPrintable {
@@ -42,18 +45,28 @@ impl std::fmt::Display for ShowsPrintable {
 
         writeln!(
             fmt,
-            "|{: <6}|{: <longest$}|",
+            "|{: <6}|{: <longest$}|{}",
             "ID",
             "Title",
+            if self.years {
+                String::from("Year|")
+            } else {
+                String::from("")
+            },
             longest = longest_name.name.len()
         )
         .unwrap();
 
         writeln!(
             fmt,
-            "|{:-<6}|{:-<longest$}|",
+            "|{:-<6}|{:-<longest$}|{}",
             "-",
             "-",
+            if self.years {
+                format!("{:-<4}|", "-")
+            } else {
+                String::from("")
+            },
             longest = longest_name.name.len()
         )
         .unwrap();
@@ -62,10 +75,23 @@ impl std::fmt::Display for ShowsPrintable {
         {
             write!(
                 fmt,
-                "|{:0>6}|{: <longest$}|",
+                "|{:0>6}|{: <longest$}|{}",
                 bs58::encode(show.id.to_le_bytes())
                     .into_string(),
                 show.name,
+                if self.years {
+                    format!(
+                        "{}|",
+                        if show.year == 0 {
+                            String::from("????")
+                        } else {
+                            (1880 + (show.year as u32))
+                                .to_string()
+                        },
+                    )
+                } else {
+                    String::from("")
+                },
                 longest = longest_name.name.len()
             )
             .unwrap();

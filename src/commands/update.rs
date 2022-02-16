@@ -4,18 +4,12 @@ use urlencoding::encode;
 
 pub fn main() {
     let query_url = &format!("https://query.wikidata.org/sparql?query={}",encode("SELECT
-?item ?itemLabel
-WHERE 
+?item ?itemLabel ?date
+WHERE
 {
-?item wdt:P1113 ?value.
-MINUS
-{
-  ?item wdt:P31 wd:Q3464665.
-}
-MINUS
-{
-  ?item wdt:P31 wd:Q100269041.
-}
+?item wdt:P31 wd:Q5398426.
+OPTIONAL {?item wdt:P577 ?date}
+OPTIONAL {?item wdt:P580 ?date}
 SERVICE wikibase:label { bd:serviceParam wikibase:language \"en\". }
 }"));
 
@@ -23,7 +17,7 @@ SERVICE wikibase:label { bd:serviceParam wikibase:language \"en\". }
         .split("<result>")
         .collect::<Vec<&str>>()[1..]
         .iter()
-        .map(|result| {
+        .map(|result| -> Show {
             let name_arr = result
                 .splitn(2, "<literal xml:lang='en'>")
                 .collect::<Vec<&str>>();
@@ -39,6 +33,8 @@ SERVICE wikibase:label { bd:serviceParam wikibase:language \"en\". }
                 .parse::<u32>()
                 .unwrap();
 
+            let date_arr = result.splitn(2, "<literal datatype='http://www.w3.org/2001/XMLSchema#dateTime'>").collect::<Vec<&str>>();
+
             return Show {
                 id,
                 name: if name_arr.len() > 1 {
@@ -49,7 +45,23 @@ SERVICE wikibase:label { bd:serviceParam wikibase:language \"en\". }
                 } else {
                     id.to_string()
                 },
-            };
+                year: if date_arr.len() > 1 {
+                    let date_small = date_arr[1]
+                        .splitn(2, "</literal>")
+                        .collect::<Vec<&str>>()[0]
+                        [0..4]
+                        .parse::<u32>()
+                        .unwrap();
+
+                    if !(1880..=2135).contains(&date_small) {
+                        0
+                    } else {
+                        (date_small - 1880) as u8
+                    }
+                } else {
+                    0
+                }
+            }
         })
         .collect::<Vec<Show>>();
 

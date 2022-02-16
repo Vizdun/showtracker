@@ -12,9 +12,11 @@ pub fn main() {
                 .into_iter()
                 .map(|track| ShowPrintable {
                     id: track.id,
-                    name: track.name
+                    name: track.name,
+                    year: 0
                 })
-                .collect()
+                .collect(),
+            years: false
         }
     );
 }
