@@ -19,12 +19,14 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     /// Checks if there are any new episodes
+    // istg, if this makes descriptions
     Check,
     /// Lists tracked shows
     List,
     /// Searches the show list
     Search {
         search_term: String,
+        #[clap(default_value_t = 5)]
         max: u32,
     },
     /// Starts tracking a show
