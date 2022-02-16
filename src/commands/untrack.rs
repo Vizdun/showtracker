@@ -9,7 +9,7 @@ pub fn main(show: &str) {
 
     let index = match track_list
         .to_vec()
-        .into_iter()
+        .iter()
         .position(|item| item.id == result.id)
     {
         Some(index) => index,

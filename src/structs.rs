@@ -1,11 +1,13 @@
-#[derive(Debug)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 
 pub struct Show {
     pub id: u32,
     pub name: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(
+    Debug, Clone, serde::Serialize, serde::Deserialize,
+)]
 
 pub struct TrackedShow {
     pub id: u32,
