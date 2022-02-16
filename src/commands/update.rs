@@ -2,7 +2,7 @@ use crate::{common::get_request, storage::*, structs::*};
 
 use urlencoding::encode;
 
-pub fn main() {
+pub fn update() {
     let query_url = &format!("https://query.wikidata.org/sparql?query={}",encode("SELECT
 ?item ?itemLabel ?date
 WHERE

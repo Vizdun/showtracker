@@ -4,7 +4,7 @@ use crate::{
     structs::*,
 };
 
-pub fn main(show: &str) {
+pub fn track(show: &str) {
     let result = parse_show_id(show);
 
     let mut track_list = load_tracked_shows();

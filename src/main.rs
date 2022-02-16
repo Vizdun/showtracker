@@ -30,13 +30,9 @@ enum Commands {
         max: u32,
     },
     /// Starts tracking a show
-    Track {
-        id: String,
-    },
+    Track { id: String },
     /// Stops tracking a show
-    Untrack {
-        id: String,
-    },
+    Untrack { id: String },
     /// Updates the show list
     Update,
 }
@@ -45,15 +41,13 @@ fn main() {
     let cli = Cli::parse();
 
     match &cli.command {
-        Commands::Update => commands::update::main(),
+        Commands::Update => commands::update(),
         Commands::Search { search_term, max } => {
-            commands::search::main(search_term, max)
+            commands::search(search_term, max)
         }
-        Commands::Track { id } => commands::track::main(id),
-        Commands::Untrack { id } => {
-            commands::untrack::main(id)
-        }
-        Commands::List => commands::list::main(),
-        Commands::Check => commands::check::main(),
+        Commands::Track { id } => commands::track(id),
+        Commands::Untrack { id } => commands::untrack(id),
+        Commands::List => commands::list(),
+        Commands::Check => commands::check(),
     }
 }

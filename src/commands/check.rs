@@ -1,6 +1,6 @@
 use crate::{common::get_request, storage::*};
 
-pub fn main() {
+pub fn check() {
     let mut track_list = load_tracked_shows();
 
     let checked_shows = get_request(&format!(

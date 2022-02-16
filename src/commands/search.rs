@@ -2,7 +2,7 @@ use crate::{storage::*};
 
 use crate::structs::{ShowsPrintable, ShowPrintable, Show};
 
-pub fn main(
+pub fn search(
     search_query: &str,
     max_results: &u32,
 ) {
