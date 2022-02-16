@@ -1,5 +1,3 @@
-use clap::{Error, ErrorKind};
-
 use crate::{
     common::{get_request, parse_show_id},
     storage::*,
@@ -13,11 +11,7 @@ pub fn main(show: &str) {
 
     if (&track_list).iter().any(|item| item.id == result.id)
     {
-        Error::with_description(
-            "Show already tracked",
-            ErrorKind::InvalidValue,
-        )
-        .exit()
+        panic!["Invalid ID"];
     };
 
     track_list.push(TrackedShow {

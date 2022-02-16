@@ -1,97 +1,57 @@
-extern crate clap;
-use clap::{App, AppSettings, Arg};
+use clap::{AppSettings, Parser, Subcommand};
 
 mod commands;
 mod common;
 mod storage;
 mod structs;
 
-fn main() {
-    let matches = App::new("Show Tracker")
-        .version("Development Version")
-        .setting(AppSettings::ArgRequiredElseHelp)
-        .subcommand(
-            App::new("check").about(
-                "Checks if there are any new episodes",
-            ),
-        )
-        .subcommand(
-            App::new("update")
-                .about("Updates the show list"),
-        )
-        .subcommand(
-            App::new("search")
-                .about("Searches the show list")
-                .arg(
-                    Arg::with_name("TERM")
-                        .help("Search term")
-                        .required(true)
-                        .index(1),
-                )
-                .arg(
-                    Arg::with_name("max")
-                        .help("Maximum number of results")
-                        .short("m")
-                        .long("max")
-                        .default_value("10")
-                        .takes_value(true),
-                ),
-        )
-        .subcommand(
-            App::new("track")
-                .about("Starts tracking a show")
-                .arg(
-                    Arg::with_name("SHOW")
-                        .help("Show ID")
-                        .required(true)
-                        .index(1),
-                ),
-        )
-        .subcommand(
-            App::new("untrack")
-                .about("Stops tracking a show")
-                .arg(
-                    Arg::with_name("SHOW")
-                        .help("Show ID")
-                        .required(true)
-                        .index(1),
-                ),
-        )
-        .subcommand(
-            App::new("list").about("Lists tracked shows"),
-        )
-        .get_matches();
+#[derive(Parser)]
+#[clap(author, version, about, long_about = None)]
+#[clap(global_setting(AppSettings::PropagateVersion))]
+#[clap(global_setting(
+    AppSettings::UseLongFormatForHelpSubcommand
+))]
+struct Cli {
+    #[clap(subcommand)]
+    command: Commands,
+}
 
-    match matches.subcommand().0 {
-        "update" => commands::update::main(),
-        "search" => commands::search::main(
-            matches
-                .subcommand_matches("search")
-                .unwrap()
-                .value_of("TERM")
-                .unwrap(),
-            matches
-                .subcommand_matches("search")
-                .unwrap()
-                .value_of("max")
-                .unwrap(),
-        ),
-        "track" => commands::track::main(
-            matches
-                .subcommand_matches("track")
-                .unwrap()
-                .value_of("SHOW")
-                .unwrap(),
-        ),
-        "untrack" => commands::untrack::main(
-            matches
-                .subcommand_matches("untrack")
-                .unwrap()
-                .value_of("SHOW")
-                .unwrap(),
-        ),
-        "list" => commands::list::main(),
-        "check" => commands::check::main(),
-        _ => {}
+#[derive(Subcommand)]
+enum Commands {
+    /// Checks if there are any new episodes
+    Check,
+    /// Lists tracked shows
+    List,
+    /// Searches the show list
+    Search {
+        search_term: String,
+        max: u32,
+    },
+    /// Starts tracking a show
+    Track {
+        id: String,
+    },
+    /// Stops tracking a show
+    Untrack {
+        id: String,
+    },
+    /// Updates the show list
+    Update,
+}
+
+fn main() {
+    let cli = Cli::parse();
+
+    match &cli.command {
+        Commands::Update => commands::update::main(),
+        Commands::Search { search_term, max } => {
+            commands::search::main(search_term, max)
+        }
+        Commands::Track { id } => commands::track::main(id),
+        Commands::Untrack { id } => {
+            commands::untrack::main(id)
+        }
+        Commands::List => commands::list::main(),
+        Commands::Check => commands::check::main(),
     }
 }

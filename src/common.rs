@@ -10,8 +10,6 @@ pub fn get_request(url: &str) -> String {
         .unwrap()
 }
 
-use clap::{Error, ErrorKind};
-
 use crate::{storage::*, structs::*};
 
 pub fn parse_show_id(show: &str) -> Show {
@@ -23,21 +21,13 @@ pub fn parse_show_id(show: &str) -> Show {
         Ok(vec) => {
             u32::from_le_bytes(vec.try_into().unwrap())
         }
-        Err(_) => Error::with_description(
-            "Invalid ID",
-            ErrorKind::InvalidValue,
-        )
-        .exit(),
+        Err(_) => panic!["Invalid ID"],
     };
 
     let shows = load_show_list();
 
     match shows.into_iter().find(|item| item.id == id) {
         Some(result) => result,
-        None => Error::with_description(
-            "Show not found",
-            ErrorKind::InvalidValue,
-        )
-        .exit(),
+        None => panic!["Invalid ID"],
     }
 }

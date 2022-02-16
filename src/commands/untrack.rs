@@ -1,5 +1,3 @@
-use clap::{Error, ErrorKind};
-
 use crate::{common::parse_show_id, storage::*};
 
 pub fn main(show: &str) {
@@ -13,11 +11,9 @@ pub fn main(show: &str) {
         .position(|item| item.id == result.id)
     {
         Some(index) => index,
-        None => Error::with_description(
-            "Show not tracked",
-            ErrorKind::InvalidValue,
-        )
-        .exit(),
+        None => {
+            panic!["Invalid ID"];
+        }
     };
 
     println!("Stopped tracking {}", track_list[index].name);

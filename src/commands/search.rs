@@ -4,7 +4,7 @@ use crate::structs::{ShowsPrintable, ShowPrintable, Show};
 
 pub fn main(
     search_query: &str,
-    max_results: &str,
+    max_results: &u32,
 ) {
     let search_results = load_show_list()
         .into_iter()
@@ -16,7 +16,7 @@ pub fn main(
         })
         .collect::<Vec<Show>>();
 
-    let max_results: usize = max_results.parse().unwrap();
+    let max_results: usize = *max_results as usize;
 
     let len = if search_results.len() > max_results {
         max_results
