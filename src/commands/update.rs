@@ -8,6 +8,7 @@ pub fn main() {
 WHERE
 {
 ?item wdt:P31 wd:Q5398426.
+?item wdt:P1113 ?episodeCount.
 OPTIONAL {?item wdt:P577 ?date}
 OPTIONAL {?item wdt:P580 ?date}
 SERVICE wikibase:label { bd:serviceParam wikibase:language \"en\". }
