@@ -14,12 +14,12 @@ use crate::{storage::*, structs::*};
 
 pub fn parse_show_id(show: &str) -> Show {
     let id: u32 = match bs58::decode(
-        show.splitn(2, '0').last().unwrap(),
+        show
     )
     .into_vec()
     {
         Ok(vec) => {
-            u32::from_le_bytes(vec.try_into().unwrap())
+            u32::from_be_bytes(vec.try_into().unwrap())
         }
         Err(_) => panic!["Invalid ID"],
     };

@@ -1,6 +1,6 @@
 use crate::{storage::*};
 
-use crate::structs::{ShowsPrintable, ShowPrintable, Show};
+use crate::structs::{Show, Shows};
 
 pub fn search(
     search_query: &str,
@@ -24,20 +24,5 @@ pub fn search(
         search_results.len()
     };
 
-    println!(
-        "{}",
-        ShowsPrintable {
-            shows: search_results[0..len]
-                .iter()
-                .map(|result| {
-                    ShowPrintable {
-                        id: result.id,
-                        name: result.name.clone(),
-                        year: result.year,
-                    }
-                })
-                .collect::<Vec<ShowPrintable>>(),
-            years: true
-        }
-    );
+    println!("{}", Shows(search_results[0..len].to_vec()));
 }

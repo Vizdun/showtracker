@@ -1,5 +1,6 @@
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
-
+#[derive(
+    Debug, serde::Serialize, serde::Deserialize, Clone,
+)]
 pub struct Show {
     pub id: u32,
     pub name: String,
@@ -9,96 +10,62 @@ pub struct Show {
 #[derive(
     Debug, Clone, serde::Serialize, serde::Deserialize,
 )]
-
 pub struct TrackedShow {
     pub id: u32,
     pub episode_count: u16,
     pub name: String,
 }
 
-#[derive(Clone)]
+use comfy_table::Table;
 
-pub struct ShowPrintable {
-    pub id: u32,
-    pub name: String,
-    pub year: u8,
-}
+pub struct Shows(pub Vec<Show>);
 
-pub struct ShowsPrintable {
-    pub shows: Vec<ShowPrintable>,
-    pub years: bool,
-}
-
-impl std::fmt::Display for ShowsPrintable {
+impl std::fmt::Display for Shows {
     fn fmt(
         &self,
-        fmt: &mut std::fmt::Formatter,
-    ) -> std::result::Result<(), std::fmt::Error> {
-        if self.shows.is_empty() {
-            return Ok(());
-        }
-        let mut temp_arr = self.shows.clone();
-        temp_arr.sort_by(|a, b| {
-            a.name.len().partial_cmp(&b.name.len()).unwrap()
-        });
-        let longest_name = temp_arr.last().unwrap();
+        f: &mut std::fmt::Formatter<'_>,
+    ) -> std::fmt::Result {
+        let mut table = Table::new();
 
-        writeln!(
-            fmt,
-            "|{: <6}|{: <longest$}|{}",
+        table.set_header(vec!["ID", "Title", "Year"]);
+
+        for show in &self.0 {
+            table.add_row(vec![
+                bs58::encode(show.id.to_be_bytes())
+                    .into_string(),
+                show.name.clone(),
+                (1880 + show.year as u32).to_string(),
+            ]);
+        }
+
+        write!(f, "{table}")
+    }
+}
+
+pub struct TrackedShows(pub Vec<TrackedShow>);
+
+impl std::fmt::Display for TrackedShows {
+    fn fmt(
+        &self,
+        f: &mut std::fmt::Formatter<'_>,
+    ) -> std::fmt::Result {
+        let mut table = Table::new();
+
+        table.set_header(vec![
             "ID",
             "Title",
-            if self.years {
-                String::from("Year|")
-            } else {
-                String::from("")
-            },
-            longest = longest_name.name.len()
-        )
-        .unwrap();
+            "Episode Count",
+        ]);
 
-        writeln!(
-            fmt,
-            "|{:-<6}|{:-<longest$}|{}",
-            "-",
-            "-",
-            if self.years {
-                format!("{:-<4}|", "-")
-            } else {
-                String::from("")
-            },
-            longest = longest_name.name.len()
-        )
-        .unwrap();
-
-        for (indx, show) in (&self.shows).iter().enumerate()
-        {
-            write!(
-                fmt,
-                "|{:0>6}|{: <longest$}|{}",
-                bs58::encode(show.id.to_le_bytes())
+        for show in &self.0 {
+            table.add_row(vec![
+                bs58::encode(show.id.to_be_bytes())
                     .into_string(),
-                show.name,
-                if self.years {
-                    format!(
-                        "{}|",
-                        if show.year == 0 {
-                            String::from("????")
-                        } else {
-                            (1880 + (show.year as u32))
-                                .to_string()
-                        },
-                    )
-                } else {
-                    String::from("")
-                },
-                longest = longest_name.name.len()
-            )
-            .unwrap();
-            if indx != self.shows.len() - 1 {
-                writeln!(fmt).unwrap();
-            }
+                show.name.clone(),
+                show.episode_count.to_string(),
+            ]);
         }
-        Ok(())
+
+        write!(f, "{table}")
     }
 }
