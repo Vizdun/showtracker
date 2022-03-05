@@ -3,7 +3,10 @@ use crate::{common::get_request, storage::*, structs::*};
 use urlencoding::encode;
 
 pub fn update() {
-    let query_url = &format!("https://query.wikidata.org/sparql?query={}",encode("SELECT
+    let query_url = &format!(
+        "https://query.wikidata.org/sparql?query={}",
+        encode(
+            r#"SELECT
 ?item ?itemLabel ?date
 WHERE
 {
@@ -11,8 +14,10 @@ WHERE
 ?item wdt:P1113 ?episodeCount.
 OPTIONAL {?item wdt:P577 ?date}
 OPTIONAL {?item wdt:P580 ?date}
-SERVICE wikibase:label { bd:serviceParam wikibase:language \"en\". }
-}"));
+SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+}"#
+        )
+    );
 
     let shows = get_request(query_url)
         .split("<result>")
