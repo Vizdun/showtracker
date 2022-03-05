@@ -4,7 +4,7 @@ use crate::{
     common::get_request, storage::*, structs::TrackedShow,
 };
 
-fn query(track_list: &Vec<TrackedShow>) -> String {
+fn query(track_list: &[TrackedShow]) -> String {
     format!(
         r#"SELECT ?show ?episodeCount
 WHERE
@@ -12,7 +12,7 @@ WHERE
   VALUES ?show {{{}}}.
   ?show wdt:P1113 ?episodeCount.
 }}"#,
-        (&track_list)
+        track_list
             .iter()
             .map(|track| format!("wd:Q{}", track.id))
             .collect::<Vec<String>>()
@@ -47,7 +47,7 @@ pub fn check() {
                     .unwrap()
                     .text()
                     .collect::<String>()
-                    .split_once("Q")
+                    .split_once('Q')
                     .unwrap()
                     .1
                     .parse::<u32>()
