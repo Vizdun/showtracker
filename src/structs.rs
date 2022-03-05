@@ -57,7 +57,11 @@ impl std::fmt::Display for TrackedShows {
             "Episode Count",
         ]);
 
-        for show in &self.0 {
+        let mut shows = self.0.clone();
+
+        shows.sort_by(|a, b| a.name.cmp(&b.name));
+
+        for show in shows {
             table.add_row(vec![
                 bs58::encode(show.id.to_be_bytes())
                     .into_string(),
