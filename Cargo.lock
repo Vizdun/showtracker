@@ -833,7 +833,6 @@ dependencies = [
  "home",
  "reqwest",
  "serde",
- "tempfile",
  "toml",
  "urlencoding",
 ]
