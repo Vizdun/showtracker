@@ -24,7 +24,7 @@ impl From<&SerializedTrackedShow> for TrackedShow {
             name: show
                 .name
                 .clone()
-                .unwrap_or(String::from("null")),
+                .unwrap_or_else(|| String::from("null")),
         }
     }
 }
@@ -78,7 +78,7 @@ pub fn load_tracked_shows() -> Vec<TrackedShow> {
     serialized_tracked_shows
         .tracked_shows
         .iter()
-        .map(|x| TrackedShow::from(x))
+        .map(TrackedShow::from)
         .collect()
 }
 
@@ -86,7 +86,7 @@ pub fn save_tracked_shows(track_list: Vec<TrackedShow>) {
     let serialized_tracked_shows = SerializedTrackedShows {
         tracked_shows: track_list
             .iter()
-            .map(|x| SerializedTrackedShow::from(x))
+            .map(SerializedTrackedShow::from)
             .collect(),
     };
 
