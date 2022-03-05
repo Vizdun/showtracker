@@ -16,7 +16,7 @@ pub struct TrackedShow {
     pub name: String,
 }
 
-use comfy_table::Table;
+use comfy_table::{Table, presets::NOTHING};
 
 pub struct Shows(pub Vec<Show>);
 
@@ -27,6 +27,7 @@ impl std::fmt::Display for Shows {
     ) -> std::fmt::Result {
         let mut table = Table::new();
 
+        table.load_preset(NOTHING);
         table.set_header(vec!["ID", "Title", "Year"]);
 
         for show in &self.0 {
@@ -51,6 +52,7 @@ impl std::fmt::Display for TrackedShows {
     ) -> std::fmt::Result {
         let mut table = Table::new();
 
+        table.load_preset(NOTHING);
         table.set_header(vec![
             "ID",
             "Title",
