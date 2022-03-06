@@ -27,6 +27,8 @@ enum Commands {
         search_term: String,
         #[clap(default_value_t = 5)]
         max: u32,
+        #[clap(short, long)]
+        regex: bool,
     },
     /// Starts tracking a show
     Track { id: String },
@@ -41,8 +43,8 @@ fn main() {
 
     match &cli.command {
         Commands::Update => commands::update(),
-        Commands::Search { search_term, max } => {
-            commands::search(search_term, max)
+        Commands::Search { search_term, max, regex } => {
+            commands::search(search_term, max, *regex)
         }
         Commands::Track { id } => commands::track(id),
         Commands::Untrack { id } => commands::untrack(id),
