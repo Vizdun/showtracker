@@ -1,7 +1,5 @@
 use std::fs;
 
-use home::home_dir;
-
 use crate::structs::{Show, TrackedShow};
 
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -39,12 +37,17 @@ impl From<&TrackedShow> for SerializedTrackedShow {
     }
 }
 
+fn config_dir(file: &str) -> String {
+    format!(
+        "{}/.config/showtracker/{}",
+        home::home_dir().unwrap().display(),
+        file
+    )
+}
+
 pub fn load_show_list() -> Vec<Show> {
-    let show_list_bin = fs::read(format!(
-        "{}/.config/showtracker/shows.bin",
-        home_dir().unwrap().display()
-    ))
-    .unwrap();
+    let show_list_bin =
+        fs::read(config_dir("shows.bin")).unwrap();
 
     let show_list: Vec<Show> =
         bincode::deserialize(&show_list_bin).unwrap();
@@ -55,22 +58,16 @@ pub fn load_show_list() -> Vec<Show> {
 pub fn save_show_list(shows: Vec<Show>) {
     let shows_bin = bincode::serialize(&shows).unwrap();
 
-    fs::write(
-        format!(
-            "{}/.config/showtracker/shows.bin",
-            home_dir().unwrap().display()
-        ),
-        shows_bin,
-    )
-    .expect("Unable to write file");
+    fs::create_dir_all(config_dir(""))
+        .expect("Unable to create .config directory");
+
+    fs::write(config_dir("shows.bin"), shows_bin)
+        .expect("Unable to write file");
 }
 
 pub fn load_tracked_shows() -> Vec<TrackedShow> {
-    let track_list_bin = fs::read(format!(
-        "{}/.config/showtracker/tracked_shows.toml",
-        home_dir().unwrap().display()
-    ))
-    .unwrap();
+    let track_list_bin =
+        fs::read(config_dir("tracked_shows.toml")).unwrap();
 
     let serialized_tracked_shows: SerializedTrackedShows =
         toml::from_slice(&track_list_bin).unwrap();
@@ -94,17 +91,11 @@ pub fn save_tracked_shows(track_list: Vec<TrackedShow>) {
         toml::to_string_pretty(&serialized_tracked_shows)
             .unwrap();
 
-    fs::create_dir_all(format!(
-        "{}/.config/showtracker/",
-        home_dir().unwrap().display()
-    ))
-    .expect("Unable to create .config directory");
+    fs::create_dir_all(config_dir(""))
+        .expect("Unable to create .config directory");
 
     fs::write(
-        format!(
-            "{}/.config/showtracker/tracked_shows.toml",
-            home_dir().unwrap().display()
-        ),
+        config_dir("tracked_shows.toml"),
         track_list_bin,
     )
     .expect("Unable to write file");
