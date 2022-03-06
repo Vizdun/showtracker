@@ -19,7 +19,6 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     /// Checks if there are any new episodes
-    // istg, if this makes descriptions
     Check,
     /// Lists tracked shows
     List,
