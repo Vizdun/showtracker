@@ -1,5 +1,5 @@
 use crate::{
-    common::{get_request, parse_show_id},
+    common::{parse_show_id, check_shows},
     storage::*,
     structs::*,
 };
@@ -16,16 +16,10 @@ pub fn track(show: &str) {
 
     track_list.push(TrackedShow {
         id: result.id,
-        episode_count: get_request(&format!(
-            "https://query.wikidata.org/sparql?query=SELECT%20%3FepisodeCount%0AWHERE%0A%7B%0A%20%20wd%3AQ{}%20wdt%3AP1113%20%3FepisodeCount.%0A%7D",
-            result.id
-        ))
-        .splitn(2, "<literal datatype='http://www.w3.org/2001/XMLSchema#decimal'>")
-        .collect::<Vec<&str>>()[1]
-        .splitn(2, "</literal>")
-        .collect::<Vec<&str>>()[0]
-        .parse::<u16>()
-        .unwrap(),
+        episode_count: check_shows(&[result.id])
+            .first()
+            .unwrap()
+            .1,
         name: (&result.name).to_string(),
     });
 

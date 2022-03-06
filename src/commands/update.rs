@@ -5,18 +5,7 @@ use urlencoding::encode;
 pub fn update() {
     let query_url = &format!(
         "https://query.wikidata.org/sparql?query={}",
-        encode(
-            r#"SELECT
-?item ?itemLabel ?date
-WHERE
-{
-?item wdt:P31 wd:Q5398426.
-?item wdt:P1113 ?episodeCount.
-OPTIONAL {?item wdt:P577 ?date}
-OPTIONAL {?item wdt:P580 ?date}
-SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
-}"#
-        )
+        encode(include_str!("../queries/shows.sparql"))
     );
 
     let shows = get_request(query_url)
