@@ -4,51 +4,19 @@ mod commands;
 mod common;
 mod storage;
 mod structs;
-
-#[derive(Parser)]
-#[clap(author, version, about, long_about = None)]
-#[clap(global_setting(AppSettings::PropagateVersion))]
-#[clap(global_setting(
-    AppSettings::UseLongFormatForHelpSubcommand
-))]
-struct Cli {
-    #[clap(subcommand)]
-    command: Commands,
-}
-
-#[derive(Subcommand)]
-enum Commands {
-    /// Checks if there are any new episodes
-    Check,
-    /// Lists tracked shows
-    List,
-    /// Searches the show list
-    Search {
-        search_term: String,
-        #[clap(default_value_t = 5)]
-        max: u32,
-        #[clap(short, long)]
-        regex: bool,
-    },
-    /// Starts tracking a show
-    Track { id: String },
-    /// Stops tracking a show
-    Untrack { id: String },
-    /// Updates the show list
-    Update,
-}
+mod cli;
 
 fn main() {
-    let cli = Cli::parse();
+    let cli = cli::Cli::parse();
 
     match &cli.command {
-        Commands::Update => commands::update(),
-        Commands::Search { search_term, max, regex } => {
+        cli::Commands::Update => commands::update(),
+        cli::Commands::Search { search_term, max, regex } => {
             commands::search(search_term, max, *regex)
         }
-        Commands::Track { id } => commands::track(id),
-        Commands::Untrack { id } => commands::untrack(id),
-        Commands::List => commands::list(),
-        Commands::Check => commands::check(),
+        cli::Commands::Track { id } => commands::track(id),
+        cli::Commands::Untrack { id } => commands::untrack(id),
+        cli::Commands::List => commands::list(),
+        cli::Commands::Check => commands::check(),
     }
 }
