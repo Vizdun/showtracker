@@ -1,11 +1,7 @@
-use clap::{AppSettings, Parser, Subcommand};
+use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
-#[clap(global_setting(AppSettings::PropagateVersion))]
-#[clap(global_setting(
-    AppSettings::UseLongFormatForHelpSubcommand
-))]
 pub struct Cli {
     #[clap(subcommand)]
     pub command: Commands,

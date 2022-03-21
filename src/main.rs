@@ -1,4 +1,4 @@
-use clap::{AppSettings, Parser, Subcommand};
+use clap::Parser;
 
 mod commands;
 mod common;
