@@ -1,4 +1,5 @@
 use clap::CommandFactory;
+use clap_complete::shells;
 use walkdir::WalkDir;
 use sha2::{Sha256, Digest};
 
@@ -10,6 +11,8 @@ use rand_chacha::ChaCha8Rng;
 mod main;
 
 fn main() -> std::io::Result<()> {
+    let cmd = main::Cli::command();
+
     // Manpages
 
     let out_dir = std::path::PathBuf::from(
@@ -17,13 +20,34 @@ fn main() -> std::io::Result<()> {
             .ok_or(std::io::ErrorKind::NotFound)?,
     );
 
-    let cmd = main::Cli::command();
-
-    let man = clap_mangen::Man::new(cmd);
+    let man = clap_mangen::Man::new(cmd.clone());
     let mut buffer: Vec<u8> = Default::default();
     man.render(&mut buffer)?;
 
     std::fs::write(out_dir.join("mybin.1"), buffer)?;
+
+    // Shell complete
+
+    macro_rules! shell_completion {
+        { $SHELL:expr, $FILENAME:expr } => {
+            let mut buf: Vec<u8> = Vec::new();
+
+            clap_complete::generate(
+                $SHELL,
+                &mut cmd.clone(),
+                cmd.get_name().to_string(),
+                &mut buf,
+            );
+
+            std::fs::write(out_dir.join($FILENAME), buf)?;
+        };
+    }
+
+    shell_completion!(shells::Bash, "showtracker.bash");
+    shell_completion!(shells::Elvish, "showtracker.elvish");
+    shell_completion!(shells::Fish, "showtracker.fish");
+    shell_completion!(shells::PowerShell, "showtracker.ps1");
+    shell_completion!(shells::Zsh, "showtracker.zsh");
 
     // Hash version numbers
 
@@ -57,8 +81,8 @@ fn main() -> std::io::Result<()> {
 
     let pname = petname::Petnames::default()
         .generate(&mut rng, 2, " ");
-
-    println!("cargo:rustc-env=HASHVER={}", pname,);
+        
+    println!("cargo:rustc-env=HASHVER={}", pname);
 
     Ok(())
 }
