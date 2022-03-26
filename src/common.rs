@@ -124,7 +124,7 @@ pub fn fetch_show(id: u32) -> TrackedShow {
 
                     let month = match premier
                         .next()
-                        .unwrap_or("Jan.")
+                        .unwrap_or("Dec.")
                     {
                         "Jan." => 1,
                         "Feb." => 2,
@@ -143,7 +143,7 @@ pub fn fetch_show(id: u32) -> TrackedShow {
 
                     let day = premier
                         .next()
-                        .unwrap_or("1")
+                        .unwrap_or("28")
                         .parse::<u32>()
                         .unwrap();
 
