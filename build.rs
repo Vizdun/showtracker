@@ -3,15 +3,45 @@ use clap_complete::shells;
 use walkdir::WalkDir;
 use sha2::{Sha256, Digest};
 
-use rand::prelude::*;
-use rand_chacha::ChaCha8Rng;
-
 // replace this with literally anything better once you find out you how
 #[path = "src/cli.rs"]
 mod main;
 
 fn main() -> std::io::Result<()> {
-    let cmd = main::Cli::command();
+    // Hash version numbers
+
+    let mut hasher = Sha256::new();
+
+    let walker = WalkDir::new("src")
+        .into_iter()
+        .filter_entry(|e| !e.path().is_dir());
+    for entry in walker {
+        hasher.update(
+            std::fs::read(entry.unwrap().path()).unwrap(),
+        );
+    }
+
+    let src_hash = hasher.finalize();
+
+    let git_hash = &include_str!(".git/refs/heads/main")
+        [0..32]
+        .chars()
+        .map(|x| {
+            u8::from_str_radix(&x.to_string(), 16).unwrap()
+        })
+        .collect::<Vec<u8>>();
+
+    let ver = format!(
+        "{}-{}",
+        &bs58::encode(git_hash).into_string()[0..4],
+        &bs58::encode(src_hash).into_string()[0..4]
+    );
+
+    println!("cargo:rustc-env=HASHVER={}", ver);
+
+    // Command
+
+    let cmd = main::Cli::command().version(&*ver);
 
     // Manpages
 
@@ -51,41 +81,6 @@ fn main() -> std::io::Result<()> {
         "showtracker.ps1"
     );
     shell_completion!(shells::Zsh, "showtracker.zsh");
-
-    // Hash version numbers
-
-    let mut hasher = Sha256::new();
-
-    let walker = WalkDir::new("src")
-        .into_iter()
-        .filter_entry(|e| !e.path().is_dir());
-    for entry in walker {
-        hasher.update(
-            std::fs::read(entry.unwrap().path()).unwrap(),
-        );
-    }
-
-    let src_hash = hasher.finalize();
-
-    let final_hash = u64::from_str_radix(
-        &format!(
-            "{}{}",
-            &include_str!(".git/refs/heads/main")[0..8],
-            &src_hash[0..4]
-                .iter()
-                .map(|x| format!("{:x}", x))
-                .collect::<String>()
-        ),
-        16,
-    )
-    .unwrap();
-
-    let mut rng = ChaCha8Rng::seed_from_u64(final_hash);
-
-    let pname = petname::Petnames::default()
-        .generate(&mut rng, 2, " ");
-
-    println!("cargo:rustc-env=HASHVER={}", pname);
 
     Ok(())
 }
