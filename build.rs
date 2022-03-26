@@ -24,7 +24,7 @@ fn main() -> std::io::Result<()> {
     let mut buffer: Vec<u8> = Default::default();
     man.render(&mut buffer)?;
 
-    std::fs::write(out_dir.join("mybin.1"), buffer)?;
+    std::fs::write(out_dir.join("showtracker.1"), buffer)?;
 
     // Shell complete
 
