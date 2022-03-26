@@ -16,7 +16,7 @@ fn config_dir(file: &str) -> String {
 }
 
 pub fn load_tracked_shows() -> Vec<TrackedShow> {
-    match fs::read(config_dir("tracked_shows.toml")) {
+    match fs::read(config_dir("tracked_shows.bin")) {
         Ok(track_list_bin) => {
             let serialized_tracked_shows: SerializedTrackedShows =
         bincode::deserialize(&track_list_bin).unwrap();
@@ -40,7 +40,7 @@ pub fn save_tracked_shows(track_list: Vec<TrackedShow>) {
         .expect("Unable to create .config directory");
 
     fs::write(
-        config_dir("tracked_shows.toml"),
+        config_dir("tracked_shows.bin"),
         track_list_bin,
     )
     .expect("Unable to write file");
