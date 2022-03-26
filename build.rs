@@ -46,7 +46,10 @@ fn main() -> std::io::Result<()> {
     shell_completion!(shells::Bash, "showtracker.bash");
     shell_completion!(shells::Elvish, "showtracker.elvish");
     shell_completion!(shells::Fish, "showtracker.fish");
-    shell_completion!(shells::PowerShell, "showtracker.ps1");
+    shell_completion!(
+        shells::PowerShell,
+        "showtracker.ps1"
+    );
     shell_completion!(shells::Zsh, "showtracker.zsh");
 
     // Hash version numbers
@@ -81,7 +84,7 @@ fn main() -> std::io::Result<()> {
 
     let pname = petname::Petnames::default()
         .generate(&mut rng, 2, " ");
-        
+
     println!("cargo:rustc-env=HASHVER={}", pname);
 
     Ok(())
