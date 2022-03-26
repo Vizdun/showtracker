@@ -13,7 +13,7 @@ pub enum Commands {
     Check,
     /// List tracked shows
     List,
-    /// Searche for a show
+    /// Search for a show
     Search {
         search_term: String,
         #[clap(default_value_t = 5)]
