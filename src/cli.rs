@@ -14,14 +14,22 @@ pub enum Commands {
     List,
     /// Search for a show
     Search {
+        /// Search term
         search_term: String,
+        /// Maximum number of results to show
         #[clap(default_value_t = 5)]
         max: u32,
     },
     /// Start tracking a show
-    Track { id: String },
+    Track {
+        /// ID or title
+        show: String,
+    },
     /// Stop tracking a show
-    Untrack { id: String },
+    Untrack {
+        /// ID or title
+        show: String,
+    },
     /// Update information about tracked shows
     Update,
 }

@@ -14,9 +14,11 @@ fn main() {
         cli::Commands::Search { search_term, max } => {
             commands::search(search_term, max)
         }
-        cli::Commands::Track { id } => commands::track(id),
-        cli::Commands::Untrack { id } => {
-            commands::untrack(id)
+        cli::Commands::Track { show } => {
+            commands::track(show)
+        }
+        cli::Commands::Untrack { show } => {
+            commands::untrack(show)
         }
         cli::Commands::List => commands::list(),
         cli::Commands::Check => commands::check(),
