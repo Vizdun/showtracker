@@ -29,10 +29,10 @@ fn main() -> std::io::Result<()> {
 
     let mut hasher = Sha256::new();
 
-    let mut walker = WalkDir::new("src")
+    let walker = WalkDir::new("src")
         .into_iter()
         .filter_entry(|e| !e.path().is_dir());
-    while let Some(entry) = walker.next() {
+    for entry in walker {
         hasher.update(
             std::fs::read(entry.unwrap().path()).unwrap(),
         );
@@ -55,11 +55,10 @@ fn main() -> std::io::Result<()> {
 
     let mut rng = ChaCha8Rng::seed_from_u64(final_hash);
 
-    let pname = petname::Petnames::default().generate(&mut rng, 2, " ");
+    let pname = petname::Petnames::default()
+        .generate(&mut rng, 2, " ");
 
-    println!(
-        "cargo:rustc-env=HASHVER={}", pname,
-    );
+    println!("cargo:rustc-env=HASHVER={}", pname,);
 
     Ok(())
 }

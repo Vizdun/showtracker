@@ -40,5 +40,11 @@ pub enum Commands {
         show: String,
     },
     /// Update information about tracked shows
-    Update,
+    Update {
+        /// Update one show specifically
+        show: Option<String>,
+        /// Update all seasons
+        #[clap(short, long)]
+        full: bool,
+    },
 }

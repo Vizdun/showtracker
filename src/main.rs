@@ -10,7 +10,9 @@ fn main() {
     let cli = cli::Cli::parse();
 
     match &cli.command {
-        cli::Commands::Update => commands::update(),
+        cli::Commands::Update { show, full } => {
+            commands::update(show.clone(), *full)
+        }
         cli::Commands::Search { search_term, max } => {
             commands::search(search_term, max)
         }
