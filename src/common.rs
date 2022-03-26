@@ -40,7 +40,10 @@ pub fn last_episode(
     last_episode
 }
 
-pub fn fetch_show(id: u32) -> TrackedShow {
+pub fn fetch_show(
+    id: u32,
+    season_offset: u32,
+) -> TrackedShow {
     let mut body = get_request(format!(
         "https://www.imdb.com/title/tt{:#07}/episodes?season=1",
         id
@@ -77,17 +80,14 @@ pub fn fetch_show(id: u32) -> TrackedShow {
         .map(|x| {
             x.text().next().unwrap().trim().parse::<u32>()
         })
-        .filter(|x| match x {
-            Ok(_) => true,
-            Err(_) => false,
-        })
+        .filter(|x| x.is_ok())
         .last()
         .unwrap()
         .unwrap();
 
     let mut seasons: Vec<Vec<Episode>> = vec![];
 
-    for i in 1..number_of_seasons + 1 {
+    for i in 1 + season_offset..number_of_seasons + 1 {
         if i != 1 {
             body = get_request(format!("https://www.imdb.com/title/tt{:#07}/episodes?season={}", id, i));
 

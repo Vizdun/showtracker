@@ -21,7 +21,7 @@ pub fn track(show: &str) {
         return;
     }
 
-    let show = fetch_show(id);
+    let show = fetch_show(id, 0);
 
     println!("Added {} to tracked shows", show.title);
 
