@@ -11,11 +11,9 @@ fn main() {
 
     match &cli.command {
         cli::Commands::Update => commands::update(),
-        cli::Commands::Search {
-            search_term,
-            max,
-            regex,
-        } => commands::search(search_term, max, *regex),
+        cli::Commands::Search { search_term, max } => {
+            commands::search(search_term, max)
+        }
         cli::Commands::Track { id } => commands::track(id),
         cli::Commands::Untrack { id } => {
             commands::untrack(id)

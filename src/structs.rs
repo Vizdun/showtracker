@@ -1,22 +1,27 @@
-#[derive(
-    Debug, serde::Serialize, serde::Deserialize, Clone,
-)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Show {
     pub id: u32,
-    pub name: String,
-    pub year: u8,
+    pub title: String,
+    pub year: u16,
 }
 
-#[derive(
-    Debug, Clone, serde::Serialize, serde::Deserialize,
-)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Episode {
+    pub title: String,
+    pub premier: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TrackedShow {
     pub id: u32,
-    pub episode_count: u16,
-    pub name: String,
+    pub title: String,
+    pub last_episode: (usize, usize),
+    pub seasons: Vec<Vec<Episode>>,
 }
 
+use chrono::{Utc, DateTime};
 use comfy_table::{Table, presets::NOTHING};
+use serde::{Serialize, Deserialize};
 
 pub struct Shows(pub Vec<Show>);
 
@@ -34,8 +39,8 @@ impl std::fmt::Display for Shows {
             table.add_row(vec![
                 bs58::encode(show.id.to_be_bytes())
                     .into_string(),
-                show.name.clone(),
-                (1880 + show.year as u32).to_string(),
+                show.title.clone(),
+                show.year.to_string(),
             ]);
         }
 
@@ -54,21 +59,20 @@ impl std::fmt::Display for TrackedShows {
 
         table.load_preset(NOTHING);
         table.set_header(vec![
-            "ID",
-            "Title",
-            "Episode Count",
+            "ID", "Title", "Season", "Episode",
         ]);
 
         let mut shows = self.0.clone();
 
-        shows.sort_by(|a, b| a.name.cmp(&b.name));
+        shows.sort_by(|a, b| a.title.cmp(&b.title));
 
         for show in shows {
             table.add_row(vec![
                 bs58::encode(show.id.to_be_bytes())
                     .into_string(),
-                show.name.clone(),
-                show.episode_count.to_string(),
+                show.title.clone(),
+                show.last_episode.0.to_string(),
+                show.last_episode.1.to_string(),
             ]);
         }
 

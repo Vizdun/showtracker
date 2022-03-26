@@ -9,22 +9,20 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
-    /// Checks if there are any new episodes
+    /// Check if any new episodes premiered
     Check,
-    /// Lists tracked shows
+    /// List tracked shows
     List,
-    /// Searches the show list
+    /// Searche for a show
     Search {
         search_term: String,
         #[clap(default_value_t = 5)]
         max: u32,
-        #[clap(short, long)]
-        regex: bool,
     },
-    /// Starts tracking a show
+    /// Start tracking a show
     Track { id: String },
-    /// Stops tracking a show
+    /// Stop tracking a show
     Untrack { id: String },
-    /// Updates the show list
+    /// Update information about tracked shows
     Update,
 }

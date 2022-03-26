@@ -1,6 +1,0 @@
-SELECT ?show ?episodeCount
-WHERE
-{{
-  VALUES ?show {{{}}}.
-  ?show wdt:P1113 ?episodeCount.
-}}

@@ -1,29 +1,31 @@
 use crate::{
-    common::{parse_show_id, check_shows},
+    common::{parse_show_id, fetch_show},
     storage::*,
-    structs::*,
 };
 
 pub fn track(show: &str) {
-    let result = parse_show_id(show);
+    let id = parse_show_id(show);
 
     let mut track_list = load_tracked_shows();
 
-    if (&track_list).iter().any(|item| item.id == result.id)
-    {
-        panic!["Invalid ID"];
-    };
+    if track_list.iter().any(|s| s.id == id) {
+        println!(
+            "Already tracking {}",
+            track_list
+                .iter()
+                .find(|s| s.id == id)
+                .unwrap()
+                .title
+        );
 
-    track_list.push(TrackedShow {
-        id: result.id,
-        episode_count: check_shows(&[result.id])
-            .first()
-            .unwrap()
-            .1,
-        name: (&result.name).to_string(),
-    });
+        return;
+    }
+
+    let show = fetch_show(id);
+
+    println!("Added {} to tracked shows", show.title);
+
+    track_list.push(show);
 
     save_tracked_shows(track_list);
-
-    println!("Added {} to tracked shows", result.name);
 }
