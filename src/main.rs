@@ -21,6 +21,8 @@ fn main() {
             commands::untrack(show)
         }
         cli::Commands::List => commands::list(),
-        cli::Commands::Check => commands::check(),
+        cli::Commands::Check { keep } => {
+            commands::check(*keep)
+        }
     }
 }
