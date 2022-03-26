@@ -9,7 +9,7 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
-    /// Check if any new episodes premiered
+    /// Check if any new episodes aired
     Check {
         /// Keep old information (notify until update is run)
         #[clap(short, long)]

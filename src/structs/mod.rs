@@ -14,7 +14,7 @@ pub struct Show {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Episode {
     pub title: String,
-    pub premier: DateTime<Utc>,
+    pub airdate: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

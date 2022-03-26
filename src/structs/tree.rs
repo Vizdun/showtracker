@@ -16,7 +16,7 @@ impl TreeItem for Episode {
     fn children(&self) -> Cow<[Self::Child]> {
         Cow::from(vec![StringItem {
             text: self
-                .premier
+                .airdate
                 .format("%d. %m. %Y")
                 .to_string(),
             children: vec![],

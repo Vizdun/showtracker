@@ -31,7 +31,7 @@ pub fn last_episode(
 
     for (s_i, season) in seasons.iter().enumerate() {
         for (e_i, episode) in season.iter().enumerate() {
-            if episode.premier < Utc::now() {
+            if episode.airdate < Utc::now() {
                 last_episode = (s_i + 1, e_i + 1);
             }
         }
@@ -59,7 +59,7 @@ pub fn fetch_show(
 
     let title_selector =
         Selector::parse("strong > a").unwrap();
-    let premier_selector =
+    let airdate_selector =
         Selector::parse("div.airdate").unwrap();
 
     let season_nums =
@@ -107,8 +107,8 @@ pub fn fetch_show(
                         .unwrap()
                         .to_string();
 
-                    let mut premier = e
-                        .select(&premier_selector)
+                    let mut airdate = e
+                        .select(&airdate_selector)
                         .next()
                         .unwrap()
                         .text()
@@ -118,13 +118,13 @@ pub fn fetch_show(
                         .split(' ')
                         .rev();
 
-                    let year = premier
+                    let year = airdate
                         .next()
                         .unwrap()
                         .parse::<i32>()
                         .unwrap_or(9999);
 
-                    let month = match premier
+                    let month = match airdate
                         .next()
                         .unwrap_or("Dec.")
                     {
@@ -143,7 +143,7 @@ pub fn fetch_show(
                         _ => panic!(),
                     };
 
-                    let day = premier
+                    let day = airdate
                         .next()
                         .unwrap_or("28")
                         .parse::<u32>()
@@ -151,7 +151,7 @@ pub fn fetch_show(
 
                     Episode {
                         title,
-                        premier: DateTime::<Utc>::from_utc(
+                        airdate: DateTime::<Utc>::from_utc(
                             NaiveDate::from_ymd(
                                 year, month, day,
                             )
