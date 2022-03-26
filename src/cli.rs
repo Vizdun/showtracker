@@ -1,6 +1,7 @@
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
+#[clap(version = env!("HASHVER"))]
 pub struct Cli {
     #[clap(subcommand)]
     pub command: Commands,
