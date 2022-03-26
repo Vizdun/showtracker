@@ -1,27 +1,6 @@
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Show {
-    pub id: u32,
-    pub title: String,
-    pub year: u16,
-}
+use comfy_table::{presets::NOTHING, Table};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Episode {
-    pub title: String,
-    pub premier: DateTime<Utc>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct TrackedShow {
-    pub id: u32,
-    pub title: String,
-    pub last_episode: (usize, usize),
-    pub seasons: Vec<Vec<Episode>>,
-}
-
-use chrono::{Utc, DateTime};
-use comfy_table::{Table, presets::NOTHING};
-use serde::{Serialize, Deserialize};
+use super::{TrackedShow, Show};
 
 pub struct Shows(pub Vec<Show>);
 
@@ -48,6 +27,7 @@ impl std::fmt::Display for Shows {
     }
 }
 
+#[derive(Clone)]
 pub struct TrackedShows(pub Vec<TrackedShow>);
 
 impl std::fmt::Display for TrackedShows {

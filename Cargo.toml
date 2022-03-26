@@ -16,6 +16,7 @@ serde = { version = "1.0.136", features = ["derive"] }
 comfy-table = "5.0.1"
 scraper = "0.12.0"
 chrono = { version = "0.4.19", features = ["serde"] }
+ptree = "0.4.0"
 
 [build-dependencies]
 clap = { version = "3.0.14", features = ["derive"] }

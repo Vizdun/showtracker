@@ -20,7 +20,9 @@ fn main() {
         cli::Commands::Untrack { show } => {
             commands::untrack(show)
         }
-        cli::Commands::List => commands::list(),
+        cli::Commands::List { tree } => {
+            commands::list(*tree)
+        }
         cli::Commands::Check { keep } => {
             commands::check(*keep)
         }

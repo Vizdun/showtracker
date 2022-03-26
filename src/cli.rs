@@ -15,7 +15,11 @@ pub enum Commands {
         keep: bool,
     },
     /// List tracked shows
-    List,
+    List {
+        /// Render the list as a tree
+        #[clap(short, long)]
+        tree: bool,
+    },
     /// Search for a show
     Search {
         /// Search term

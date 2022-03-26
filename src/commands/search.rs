@@ -1,4 +1,4 @@
-use crate::{structs::Shows, common::search_shows};
+use crate::{common::search_shows, structs::display::Shows};
 
 pub fn search(
     search_query: &str,
