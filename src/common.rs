@@ -42,7 +42,7 @@ pub fn last_episode(
 
 pub fn fetch_show(id: u32) -> TrackedShow {
     let mut body = get_request(format!(
-        "https://www.imdb.com/title/tt{}/episodes?season=1",
+        "https://www.imdb.com/title/tt{:#07}/episodes?season=1",
         id
     ));
 
@@ -74,20 +74,22 @@ pub fn fetch_show(id: u32) -> TrackedShow {
 
     let number_of_seasons = fragment
         .select(&season_nums)
+        .map(|x| {
+            x.text().next().unwrap().trim().parse::<u32>()
+        })
+        .filter(|x| match x {
+            Ok(_) => true,
+            Err(_) => false,
+        })
         .last()
         .unwrap()
-        .text()
-        .next()
-        .unwrap()
-        .trim()
-        .parse::<usize>()
         .unwrap();
 
     let mut seasons: Vec<Vec<Episode>> = vec![];
 
     for i in 1..number_of_seasons + 1 {
         if i != 1 {
-            body = get_request(format!("https://www.imdb.com/title/tt{}/episodes?season={}", id, i));
+            body = get_request(format!("https://www.imdb.com/title/tt{:#07}/episodes?season={}", id, i));
 
             fragment = Html::parse_fragment(&body);
         }
