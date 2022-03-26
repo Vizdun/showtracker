@@ -2,6 +2,9 @@ use clap::CommandFactory;
 use walkdir::WalkDir;
 use sha2::{Sha256, Digest};
 
+use rand::prelude::*;
+use rand_chacha::ChaCha8Rng;
+
 // replace this with literally anything better once you find out you how
 #[path = "src/cli.rs"]
 mod main;
@@ -37,21 +40,26 @@ fn main() -> std::io::Result<()> {
 
     let src_hash = hasher.finalize();
 
-    let git_hash = &include_str!(".git/refs/heads/main")
-        [0..32]
-        .chars()
-        .map(|x| {
-            u8::from_str_radix(&x.to_string(), 16).unwrap()
-        })
-        .collect::<Vec<u8>>();
+    let final_hash = u64::from_str_radix(
+        &format!(
+            "{}{}",
+            &include_str!(".git/refs/heads/main")[0..8],
+            &src_hash[0..4]
+                .iter()
+                .map(|x| format!("{:x}", x))
+                .collect::<String>()
+        ),
+        16,
+    )
+    .unwrap();
 
-    let ver = format!(
-        "{}-{}",
-        &bs58::encode(git_hash).into_string()[0..4],
-        &bs58::encode(src_hash).into_string()[0..4]
+    let mut rng = ChaCha8Rng::seed_from_u64(final_hash);
+
+    let pname = petname::Petnames::default().generate(&mut rng, 2, " ");
+
+    println!(
+        "cargo:rustc-env=HASHVER={}", pname,
     );
-
-    println!("cargo:rustc-env=HASHVER={}", ver);
 
     Ok(())
 }
