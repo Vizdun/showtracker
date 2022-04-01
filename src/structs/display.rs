@@ -12,14 +12,19 @@ impl std::fmt::Display for Shows {
         let mut table = Table::new();
 
         table.load_preset(NOTHING);
-        table.set_header(vec!["ID", "Title", "Year"]);
+        table.set_header(vec![
+            "ID", "Title", "Year", "Rating",
+        ]);
 
         for show in &self.0 {
             table.add_row(vec![
                 bs58::encode(show.id.to_be_bytes())
                     .into_string(),
                 show.title.clone(),
-                show.year.to_string(),
+                show.year.map(|y| y.to_string())
+                    .unwrap_or("".to_string()),
+                show.rating.map(|r| r.to_string())
+                    .unwrap_or("".to_string()),
             ]);
         }
 

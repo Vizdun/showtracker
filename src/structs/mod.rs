@@ -8,7 +8,8 @@ use serde::{Serialize, Deserialize};
 pub struct Show {
     pub id: u32,
     pub title: String,
-    pub year: u16,
+    pub year: Option<u16>,
+    pub rating: Option<f32>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -179,11 +179,17 @@ pub fn search_shows(search_query: &str) -> Vec<Show> {
         .unwrap();
 
     let show_selector =
-        Selector::parse("h3.lister-item-header").unwrap();
+        Selector::parse("div.lister-item").unwrap();
 
-    let title_id_selector = Selector::parse("a").unwrap();
+    let title_id_selector =
+        Selector::parse("h3.lister-item-header > a")
+            .unwrap();
     let year_selector = Selector::parse(
-        "span.lister-item-year.text-muted.unbold",
+        "h3.lister-item-header > span.lister-item-year.text-muted.unbold",
+    )
+    .unwrap();
+    let rating_selector = Selector::parse(
+        "div.inline-block.ratings-imdb-rating > strong",
     )
     .unwrap();
 
@@ -214,11 +220,20 @@ pub fn search_shows(search_query: &str) -> Vec<Show> {
                 .unwrap()
                 .text()
                 .next()
-                .unwrap()[1..5]
-                .parse::<u16>()
-                .unwrap();
+                .and_then(|r| r[1..5].parse::<u16>().ok());
 
-            Show { id, title, year }
+            let rating = e
+                .select(&rating_selector)
+                .next()
+                .and_then(|r| {
+                    r.text()
+                        .next()
+                        .unwrap()
+                        .parse::<f32>()
+                        .ok()
+                });
+
+            Show { id, title, year, rating }
         })
         .collect::<Vec<Show>>();
 
