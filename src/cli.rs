@@ -32,8 +32,17 @@ pub enum Commands {
         /// Search term
         search_term: String,
         /// Maximum number of results to show
-        #[clap(default_value_t = 5)]
+        #[clap(short, long, default_value_t = 5)]
         max: u32,
+        /// Show IDs
+        #[clap(short, long)]
+        id: bool,
+        /// Use stars to display rating
+        #[clap(short, long)]
+        stars: bool,
+        /// Numeral system
+        #[clap(short, long, arg_enum, default_value_t = Numeral::Arabic)]
+        numeral: Numeral,
     },
     /// Start tracking a show
     Track {
