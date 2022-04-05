@@ -32,7 +32,10 @@ impl std::fmt::Display for Shows {
 
         let rating_str = if self.stars {
             |x: f32| -> String {
-                "*".repeat((x / 10.0 * 5.0) as usize)
+                "★".repeat((x / 10.0 * 5.0) as usize)
+                    + &"☆".repeat(
+                        5 - (x / 10.0 * 5.0) as usize,
+                    )
             }
         } else {
             |x: f32| -> String { format!("{}", x) }
