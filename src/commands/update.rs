@@ -24,10 +24,23 @@ pub fn update(
         }
     } else {
         for show in track_list {
-            new_track_list.push(fetch_show(
+            let mut new_show = fetch_show(
                 show.id,
                 show.last_episode.0 as u32 - 1,
-            ));
+            );
+
+            for old_season in show.seasons
+                [..show.last_episode.0 - 1]
+                .to_vec()
+                .iter()
+                .rev()
+            {
+                new_show
+                    .seasons
+                    .insert(0, old_season.clone());
+            }
+
+            new_track_list.push(new_show);
         }
     }
 
