@@ -1,4 +1,4 @@
-use clap::{Parser, Subcommand};
+use clap::{Parser, Subcommand, ArgEnum};
 
 #[derive(Parser)]
 #[clap(version = env!("HASHVER"))]
@@ -17,9 +17,15 @@ pub enum Commands {
     },
     /// List tracked shows
     List {
+        /// Show IDs
+        #[clap(short, long)]
+        id: bool,
         /// Render the list as a tree
         #[clap(short, long)]
         tree: bool,
+        /// Numeral system
+        #[clap(short, long, arg_enum, default_value_t = Numeral::Arabic)]
+        numeral: Numeral,
     },
     /// Search for a show
     Search {
@@ -47,4 +53,12 @@ pub enum Commands {
         #[clap(short, long)]
         full: bool,
     },
+}
+
+#[derive(ArgEnum, Debug, Clone)] // ArgEnum here
+#[clap(rename_all = "kebab_case")]
+pub enum Numeral {
+    Arabic,
+    Roman,
+    TallyMarks,
 }

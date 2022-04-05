@@ -71,6 +71,6 @@ impl TreeItem for TrackedShows {
         write!(f, "{}", style.paint("Tracked Shows"))
     }
     fn children(&self) -> Cow<[Self::Child]> {
-        Cow::from(self.0.clone())
+        Cow::from(self.shows.clone())
     }
 }

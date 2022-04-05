@@ -22,8 +22,8 @@ fn main() {
         cli::Commands::Untrack { show } => {
             commands::untrack(show)
         }
-        cli::Commands::List { tree } => {
-            commands::list(*tree)
+        cli::Commands::List { id, tree, numeral } => {
+            commands::list(*id, *tree, numeral.clone())
         }
         cli::Commands::Check { keep } => {
             commands::check(*keep)
