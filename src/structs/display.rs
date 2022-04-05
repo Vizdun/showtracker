@@ -42,40 +42,32 @@ impl std::fmt::Display for Shows {
 
         table.load_preset(NOTHING);
 
-        if self.id {
-            table.set_header(vec![
-                "ID", "Title", "Year", "Rating",
-            ]);
-        } else {
-            table.set_header(vec![
-                "Title", "Year", "Rating",
-            ]);
-        }
+        let mut header =
+            if self.id { vec!["ID"] } else { vec![] };
+
+        header.append(&mut vec!["Title", "Year", "Rating"]);
+
+        table.set_header(header);
 
         for show in &self.shows {
-            table.add_row(if self.id {
-                vec![
-                    bs58::encode(show.id.to_be_bytes())
-                        .into_string(),
-                    show.title.clone(),
-                    show.year
-                        .map(|y| num_str(y as usize))
-                        .unwrap_or("".to_string()),
-                    show.rating
-                        .map(|r| rating_str(r))
-                        .unwrap_or("".to_string()),
-                ]
+            let mut row = if self.id {
+                vec![bs58::encode(show.id.to_be_bytes())
+                    .into_string()]
             } else {
-                vec![
-                    show.title.clone(),
-                    show.year
-                        .map(|y| num_str(y as usize))
-                        .unwrap_or("".to_string()),
-                    show.rating
-                        .map(|r| rating_str(r))
-                        .unwrap_or("".to_string()),
-                ]
-            });
+                vec![]
+            };
+
+            row.append(&mut vec![
+                show.title.clone(),
+                show.year
+                    .map(|y| num_str(y as usize))
+                    .unwrap_or("".to_string()),
+                show.rating
+                    .map(rating_str)
+                    .unwrap_or("".to_string()),
+            ]);
+
+            table.add_row(row);
         }
 
         write!(f, "{table}")
@@ -106,36 +98,34 @@ impl std::fmt::Display for TrackedShows {
 
         table.load_preset(NOTHING);
 
-        if self.id {
-            table.set_header(vec![
-                "ID", "Title", "Season", "Episode",
-            ]);
-        } else {
-            table.set_header(vec![
-                "Title", "Season", "Episode",
-            ]);
-        }
+        let mut header =
+            if self.id { vec!["ID"] } else { vec![] };
+
+        header.append(&mut vec![
+            "Title", "Season", "Episode",
+        ]);
+
+        table.set_header(header);
 
         let mut shows = self.shows.clone();
 
         shows.sort_by(|a, b| a.title.cmp(&b.title));
 
         for show in shows {
-            table.add_row(if self.id {
-                vec![
-                    bs58::encode(show.id.to_be_bytes())
-                        .into_string(),
-                    show.title.clone(),
-                    num_str(show.last_episode.0),
-                    num_str(show.last_episode.1),
-                ]
+            let mut row = if self.id {
+                vec![bs58::encode(show.id.to_be_bytes())
+                    .into_string()]
             } else {
-                vec![
-                    show.title.clone(),
-                    num_str(show.last_episode.0),
-                    num_str(show.last_episode.1),
-                ]
-            });
+                vec![]
+            };
+
+            row.append(&mut vec![
+                show.title.clone(),
+                num_str(show.last_episode.0),
+                num_str(show.last_episode.1),
+            ]);
+
+            table.add_row(row);
         }
 
         writeln!(f, "{table}")
