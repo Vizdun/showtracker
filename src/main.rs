@@ -1,4 +1,5 @@
 use clap::Parser;
+use cli::Commands;
 
 mod cli;
 mod commands;
@@ -11,13 +12,13 @@ fn main() {
 
     match &cli.command {
         #[cfg(debug_assertions)]
-        cli::Commands::Debug => {
+        Commands::Debug => {
             commands::debug();
         }
-        cli::Commands::Update { show, full } => {
+        Commands::Update { show, full } => {
             commands::update(show.clone(), *full)
         }
-        cli::Commands::Search {
+        Commands::Search {
             search_term,
             max,
             id,
@@ -30,17 +31,13 @@ fn main() {
             *stars,
             numeral.clone(),
         ),
-        cli::Commands::Track { show } => {
-            commands::track(show)
-        }
-        cli::Commands::Untrack { show } => {
+        Commands::Track { show } => commands::track(show),
+        Commands::Untrack { show } => {
             commands::untrack(show)
         }
-        cli::Commands::List { id, tree, numeral } => {
+        Commands::List { id, tree, numeral } => {
             commands::list(*id, *tree, numeral.clone())
         }
-        cli::Commands::Check { keep } => {
-            commands::check(*keep)
-        }
+        Commands::Check { keep } => commands::check(*keep),
     }
 }
