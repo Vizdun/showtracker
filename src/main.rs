@@ -10,6 +10,10 @@ fn main() {
     let cli = cli::Cli::parse();
 
     match &cli.command {
+        #[cfg(debug_assertions)]
+        cli::Commands::Debug => {
+            commands::debug();
+        }
         cli::Commands::Update { show, full } => {
             commands::update(show.clone(), *full)
         }

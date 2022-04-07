@@ -9,6 +9,9 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
+    /// Print out debug information
+    #[cfg(debug_assertions)]
+    Debug,
     /// Check if any new episodes aired
     Check {
         /// Keep old information (notify until update is run)
@@ -64,7 +67,7 @@ pub enum Commands {
     },
 }
 
-#[derive(ArgEnum, Debug, Clone)] // ArgEnum here
+#[derive(ArgEnum, Debug, Clone)]
 #[clap(rename_all = "kebab_case")]
 pub enum Numeral {
     Arabic,
